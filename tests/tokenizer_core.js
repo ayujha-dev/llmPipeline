@@ -17,7 +17,20 @@ function wordToInitialTokens(word, isFirstWord = false) {
 function runBPESimulation(rawText, maxMerges = 32) {
   const words = preTokenize(rawText);
   if (words.length === 0) {
-    return { steps: [], mergeRules: [], vocabMap: {}, initialVocab: [] };
+    return {
+      steps: [{
+        step: 0,
+        mergedPair: null,
+        pairFreq: 0,
+        vocabList: [],
+        vocabMap: {},
+        wordTokens: [],
+        stats: { charCount: 0, tokenCount: 0, vocabSize: 0, compressionRatio: '1.00' }
+      }],
+      mergeRules: [],
+      vocabMap: {},
+      initialVocab: []
+    };
   }
 
   // Count word frequencies
@@ -176,16 +189,25 @@ function encodeBPE(text, vocabMap = {}, mergeRules = []) {
       currentTokens = nextTokens;
     }
 
-    for (const tok of currentTokens) {
+    let isLeading = false;
+    if (currentTokens[0] === '▁') {
+      isLeading = true;
+      currentTokens.shift();
+    }
+    for (let tIdx = 0; tIdx < currentTokens.length; tIdx++) {
+      const tok = currentTokens[tIdx];
+      const hasPrefix = (tIdx === 0 && isLeading) || tok.startsWith('▁');
       const clean = tok.replace(/^▁/, '');
-      const id = vocabMap[tok] !== undefined ? vocabMap[tok] : (vocabMap[clean] !== undefined ? vocabMap[clean] : -1);
+      if (!clean) continue;
+      const fullTok = (tIdx === 0 && isLeading && !tok.startsWith('▁')) ? ('▁' + clean) : tok;
+      const id = vocabMap[fullTok] !== undefined ? vocabMap[fullTok] : (vocabMap[clean] !== undefined ? vocabMap[clean] : -1);
       resultTokens.push({
-        token: tok,
-        clean: clean || tok,
+        token: fullTok,
+        clean: clean,
         word: rawWord,
         id: id,
-        isBase: tok.length === 1 && !tok.startsWith('▁'),
-        hasPrefix: tok.startsWith('▁')
+        isBase: clean.length === 1,
+        hasPrefix: hasPrefix
       });
     }
   }

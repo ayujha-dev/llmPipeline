@@ -589,14 +589,16 @@
     }
 
     /* ============================================
-       Stage 1: Tokenizer — Dark-Ground Redesign
+       Stage 1: Tokenizer — Glassmorphic Minimalist Design
        ============================================ */
 
-    /* Stage 1 card dark amber header */
+    /* Stage 1 card luminous frosted header */
     #stage-tokenizer .stage-header {
-      background: linear-gradient(135deg, #1a0a00 0%, #2c1200 55%, #1a0800 100%);
+      background: linear-gradient(135deg, rgba(254, 243, 199, 0.65) 0%, rgba(255, 255, 255, 0.8) 100%);
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      border-bottom: 1px solid rgba(217, 119, 6, 0.3);
+      border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       position: relative;
       overflow: hidden;
     }
@@ -605,41 +607,50 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at 20% 50%, rgba(217,119,6,0.12) 0%, transparent 60%),
-                  radial-gradient(ellipse at 80% 20%, rgba(251,191,36,0.06) 0%, transparent 50%);
+      background: radial-gradient(ellipse at 15% 50%, rgba(245, 158, 11, 0.12) 0%, transparent 60%);
       pointer-events: none;
     }
 
     #stage-tokenizer .stage-indicator {
-      background: var(--accent-s1) !important;
-      box-shadow: 0 0 16px rgba(217, 119, 6, 0.6);
+      background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+      color: #ffffff;
     }
 
-    #stage-tokenizer .stage-title-wrap h2 { color: #fef3c7; }
-    #stage-tokenizer .stage-title-wrap p  { color: rgba(254,243,199,0.55); }
+    #stage-tokenizer .stage-title-wrap h2 {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    #stage-tokenizer .stage-title-wrap p {
+      color: var(--text-muted);
+    }
 
     #stage-tokenizer .stage-summary-chip {
-      background: rgba(217,119,6,0.15);
-      border-color: rgba(217,119,6,0.4);
-      color: #fbbf24;
+      background: rgba(254, 243, 199, 0.85);
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      color: #92400e;
+      font-weight: 600;
     }
 
-    #stage-tokenizer .chevron-icon { stroke: rgba(254,243,199,0.5); }
+    #stage-tokenizer .chevron-icon {
+      stroke: var(--text-muted);
+    }
 
-    /* Stage body background */
+    /* Stage 1 Body — frosted translucent glass */
     #stage-tokenizer .stage-body {
-      background: #0f1117;
+      background: rgba(255, 255, 255, 0.45);
       border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
 
     /* Primary CTA: Tokenize & Build Vocab */
     .btn-tokenize-primary {
       background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-      color: #fff;
-      border: none;
-      font-size: 14px;
-      font-weight: 700;
-      padding: 11px 20px;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 10px 20px;
       border-radius: var(--radius-md);
       cursor: pointer;
       display: inline-flex;
@@ -647,7 +658,7 @@
       gap: 8px;
       letter-spacing: 0.01em;
       transition: all var(--transition-fast);
-      box-shadow: 0 4px 14px rgba(217,119,6,0.4);
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.28);
       white-space: nowrap;
       position: relative;
       overflow: hidden;
@@ -657,62 +668,71 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 55%);
       pointer-events: none;
     }
 
     .btn-tokenize-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(217,119,6,0.55);
+      box-shadow: 0 8px 22px rgba(217, 119, 6, 0.42);
       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
 
-    .btn-tokenize-primary:active { transform: translateY(0); }
+    .btn-tokenize-primary:active {
+      transform: translateY(0);
+    }
 
-    /* Corpus textarea — code-editor feel */
+    /* Corpus textarea — elegant frosted glass editor */
     #stage-tokenizer textarea#bpe-corpus-input {
-      background: #0a0d14;
-      border: 1px solid rgba(217,119,6,0.25);
-      color: #e2d9c5;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      color: var(--text-main);
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: 13.5px;
       border-radius: var(--radius-md);
       padding: 14px 16px;
-      line-height: 1.65;
-      caret-color: #f59e0b;
+      line-height: 1.6;
+      caret-color: #d97706;
       resize: vertical;
       min-height: 90px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+      transition: all var(--transition-fast);
     }
 
     #stage-tokenizer textarea#bpe-corpus-input:focus {
       border-color: var(--accent-s1);
-      box-shadow: 0 0 0 3px rgba(217,119,6,0.18);
+      box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
+      background: #ffffff;
       outline: none;
     }
 
     /* Test input inside stage 1 */
     #stage-tokenizer input#bpe-test-input {
-      background: #0a0d14;
-      border: 1px solid rgba(217,119,6,0.2);
-      color: #e2d9c5;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(217, 119, 6, 0.25);
+      color: var(--text-main);
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: 13.5px;
       border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
     }
 
     #stage-tokenizer input#bpe-test-input:focus {
       border-color: var(--accent-s1);
-      box-shadow: 0 0 0 3px rgba(217,119,6,0.18);
+      box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
+      background: #ffffff;
       outline: none;
     }
 
     /* Section divider labels */
     .s1-section-label {
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: rgba(217,119,6,0.65);
+      letter-spacing: 0.08em;
+      color: #92400e;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -723,14 +743,14 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: rgba(217,119,6,0.12);
+      background: rgba(217, 119, 6, 0.18);
     }
 
-    /* Corpus row: editor + CTA side by side */
+    /* Corpus row layout */
     .s1-corpus-row {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 14px;
+      gap: 16px;
       align-items: flex-start;
     }
 
@@ -741,20 +761,23 @@
     .s1-corpus-cta-col {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       align-items: flex-end;
       padding-top: 2px;
     }
 
-    /* BPE playback bar */
+    /* BPE Playbar — frosted glass scrubber */
     .bpe-playbar {
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: #0a0d14;
-      border: 1px solid rgba(217,119,6,0.2);
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(217, 119, 6, 0.2);
       border-radius: var(--radius-md);
       padding: 10px 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
 
     .bpe-playbar-label {
@@ -762,23 +785,23 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: rgba(217,119,6,0.7);
+      color: #92400e;
       white-space: nowrap;
     }
 
     .bpe-controls {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
 
     .bpe-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 7px;
-      border: 1px solid rgba(217,119,6,0.25);
-      background: rgba(217,119,6,0.08);
-      color: #d97706;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(217, 119, 6, 0.25);
+      background: rgba(255, 255, 255, 0.85);
+      color: #b45309;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -789,168 +812,177 @@
     }
 
     .bpe-btn:hover {
-      background: rgba(217,119,6,0.22);
+      background: #fef3c7;
       border-color: var(--accent-s1);
+      color: #92400e;
       transform: translateY(-1px);
     }
 
-    .bpe-btn:active { transform: scale(0.93); }
+    .bpe-btn:active { transform: scale(0.94); }
 
     .bpe-step-val {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 700;
-      color: #f59e0b;
-      min-width: 54px;
+      color: #b45309;
+      min-width: 58px;
       text-align: right;
     }
 
-    /* Slider within dark stage 1 */
+    /* Slider styling inside Stage 1 */
     #stage-tokenizer input[type="range"] {
       flex: 1;
-      height: 5px;
-      background: rgba(217,119,6,0.15);
+      height: 6px;
+      background: rgba(217, 119, 6, 0.2);
       outline: none;
       -webkit-appearance: none;
       cursor: pointer;
       border-radius: 3px;
       border: none;
-      box-shadow: none;
     }
 
     #stage-tokenizer input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
+      width: 17px;
+      height: 17px;
       border-radius: 50%;
-      background: #f59e0b;
+      background: #d97706;
       cursor: pointer;
-      box-shadow: 0 0 8px rgba(245,158,11,0.5);
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.4);
       transition: transform var(--transition-fast);
     }
 
     #stage-tokenizer input[type="range"]::-webkit-slider-thumb:hover {
       transform: scale(1.2);
+      background: #b45309;
     }
 
-    /* Metric ribbon — dark amber */
+    /* Metric ribbon — frosted glass cards */
     .s1-metric-ribbon {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      gap: 12px;
     }
 
-    @media (max-width: 800px) { .s1-metric-ribbon { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 800px) { .s1-metric-ribbon { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .s1-metric-ribbon { grid-template-columns: 1fr; } }
 
     .s1-metric-card {
-      background: #0a0d14;
-      border: 1px solid rgba(217,119,6,0.18);
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(217, 119, 6, 0.18);
       border-radius: var(--radius-md);
       padding: 14px 16px;
       display: flex;
       flex-direction: column;
       gap: 3px;
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
     }
 
     .s1-metric-card:hover {
-      border-color: rgba(217,119,6,0.4);
-      box-shadow: 0 0 12px rgba(217,119,6,0.07);
-      transform: translateY(-1px);
+      border-color: rgba(217, 119, 6, 0.4);
+      box-shadow: 0 6px 18px rgba(217, 119, 6, 0.1);
+      transform: translateY(-2px);
     }
 
     .s1-metric-label {
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: rgba(217,119,6,0.6);
+      letter-spacing: 0.07em;
+      color: #92400e;
     }
 
     .s1-metric-val {
       font-family: var(--font-mono);
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 800;
-      color: #f59e0b;
+      color: #b45309;
       line-height: 1.1;
     }
 
     .s1-metric-sub {
       font-size: 11px;
-      color: rgba(226,217,197,0.3);
+      color: var(--text-muted);
       margin-top: 2px;
     }
 
     @keyframes metricPulse {
-      0%   { opacity: 1; }
-      40%  { opacity: 0.35; }
-      100% { opacity: 1; }
+      0%   { opacity: 1; transform: scale(1); }
+      40%  { opacity: 0.5; transform: scale(0.97); }
+      100% { opacity: 1; transform: scale(1); }
     }
 
-    .s1-metric-val.updating { animation: metricPulse 400ms ease; }
+    .s1-metric-val.updating { animation: metricPulse 350ms ease; }
 
-    /* Token stream — dark */
+    /* Token stream display — frosted container */
     .token-stream-box {
-      background: #0a0d14;
-      border: 1px solid rgba(217,119,6,0.2);
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(217, 119, 6, 0.2);
       border-radius: var(--radius-md);
       padding: 16px;
       min-height: 72px;
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
+      gap: 8px;
       align-items: center;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
     }
 
     /* Token chips */
     @keyframes chipIn {
-      from { opacity:0; transform:scale(0.78) translateY(5px); }
-      to   { opacity:1; transform:scale(1) translateY(0); }
+      from { opacity: 0; transform: scale(0.8) translateY(4px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
     }
 
     .token-chip {
       border-radius: var(--radius-pill);
-      padding: 4px 10px;
+      padding: 5px 12px;
       font-family: var(--font-mono);
-      font-size: 12.5px;
+      font-size: 13px;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       transition: all var(--transition-fast);
-      border: 1px solid transparent;
-      animation: chipIn 180ms cubic-bezier(0.34,1.56,0.64,1) both;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+      animation: chipIn 180ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
 
     .token-chip.chip-base {
-      background: rgba(100,116,139,0.12);
-      border-color: rgba(100,116,139,0.28);
-      color: #94a3b8;
+      background: rgba(241, 245, 249, 0.85);
+      border: 1px solid rgba(203, 213, 225, 0.85);
+      color: #475569;
     }
 
     .token-chip.chip-merged {
-      background: rgba(217,119,6,0.14);
-      border-color: rgba(217,119,6,0.42);
-      color: #fbbf24;
+      background: rgba(254, 243, 199, 0.85);
+      border: 1px solid rgba(217, 119, 6, 0.35);
+      color: #92400e;
+      font-weight: 600;
     }
 
     .token-chip:hover {
+      border-color: var(--accent-s1);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.16);
     }
 
     .token-chip .prefix-mark {
-      color: #f59e0b;
+      color: #d97706;
       font-weight: 800;
-      font-size: 10px;
+      font-size: 11px;
     }
 
     .token-chip .tok-id {
-      font-size: 9.5px;
-      color: rgba(251,191,36,0.4);
-      background: rgba(217,119,6,0.1);
-      padding: 1px 4px;
-      border-radius: 3px;
+      font-size: 10px;
+      color: #94a3b8;
+      background: rgba(0, 0, 0, 0.04);
+      padding: 1px 5px;
+      border-radius: 4px;
     }
 
     /* Stream header */
@@ -962,9 +994,9 @@
     }
 
     .s1-stream-title {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
-      color: rgba(226,217,197,0.45);
+      color: var(--text-muted);
     }
 
     .s1-token-count-badge {
@@ -972,26 +1004,29 @@
       font-size: 11px;
       font-weight: 700;
       padding: 2px 8px;
-      background: rgba(217,119,6,0.15);
-      border: 1px solid rgba(217,119,6,0.3);
+      background: rgba(254, 243, 199, 0.85);
+      border: 1px solid rgba(217, 119, 6, 0.3);
       border-radius: var(--radius-pill);
-      color: #f59e0b;
+      color: #92400e;
     }
 
-    /* Vocab & merge tables — dark */
+    /* Vocab & Merge Tables — frosted glass tables */
     .vocab-table-container {
       max-height: 260px;
       overflow-y: auto;
-      border: 1px solid rgba(217,119,6,0.18);
+      border: 1px solid rgba(217, 119, 6, 0.18);
       border-radius: var(--radius-md);
-      background: #0a0d14;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       scrollbar-width: thin;
-      scrollbar-color: rgba(217,119,6,0.3) transparent;
+      scrollbar-color: rgba(217, 119, 6, 0.3) transparent;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
 
     .vocab-table-container::-webkit-scrollbar { width: 5px; }
     .vocab-table-container::-webkit-scrollbar-thumb {
-      background: rgba(217,119,6,0.3);
+      background: rgba(217, 119, 6, 0.3);
       border-radius: 3px;
     }
 
@@ -1002,24 +1037,22 @@
       text-align: left;
     }
 
-    /* Stage-1 specific table header override */
     #stage-tokenizer table.data-table th {
-      background: rgba(217,119,6,0.09);
+      background: rgba(254, 243, 199, 0.85);
       padding: 9px 14px;
       font-weight: 700;
-      font-size: 10.5px;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: rgba(217,119,6,0.7);
-      border-bottom: 1px solid rgba(217,119,6,0.18);
+      color: #92400e;
+      border-bottom: 1px solid rgba(217, 119, 6, 0.2);
       position: sticky;
       top: 0;
       z-index: 1;
     }
 
-    /* Generic table header (other stages) */
     table.data-table th {
-      background: var(--bg-card-alt);
+      background: rgba(241, 245, 249, 0.85);
       padding: 8px 14px;
       font-weight: 600;
       color: var(--text-muted);
@@ -1031,10 +1064,10 @@
 
     #stage-tokenizer table.data-table td {
       padding: 8px 14px;
-      border-bottom: 1px solid rgba(217,119,6,0.07);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.7);
       font-family: var(--font-mono);
       font-size: 12px;
-      color: #c4b89a;
+      color: var(--text-main);
     }
 
     table.data-table td {
@@ -1045,31 +1078,10 @@
     }
 
     #stage-tokenizer table.data-table tr:hover td {
-      background: rgba(217,119,6,0.06);
-      color: #fbbf24;
+      background: rgba(254, 243, 199, 0.4);
     }
 
     table.data-table tr:hover { background: var(--bg-card-alt); }
-
-    /* NEW badge on fresh merges */
-    @keyframes badgePop {
-      from { transform:scale(0); opacity:0; }
-      to   { transform:scale(1); opacity:1; }
-    }
-
-    .merge-new-badge {
-      display: inline-block;
-      font-size: 9px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 1px 5px;
-      border-radius: 3px;
-      background: rgba(217,119,6,0.3);
-      color: #f59e0b;
-      margin-left: 6px;
-      animation: badgePop 500ms cubic-bezier(0.34,1.56,0.64,1) both;
-    }
 
     /* Checkbox */
     #stage-tokenizer .s1-sync-label {
@@ -1078,11 +1090,11 @@
       align-items: center;
       gap: 6px;
       cursor: pointer;
-      color: rgba(226,217,197,0.4);
+      color: var(--text-muted);
       transition: color var(--transition-fast);
     }
 
-    #stage-tokenizer .s1-sync-label:hover { color: rgba(226,217,197,0.75); }
+    #stage-tokenizer .s1-sync-label:hover { color: var(--text-main); }
     #stage-tokenizer input[type="checkbox"] { accent-color: var(--accent-s1); }
 
     /* Stage 2: Embedder Specifics */
@@ -1479,9 +1491,165 @@
     .text-mono { font-family: var(--font-mono); }
     .muted { color: var(--text-muted); }
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
-  </style>
+  
+    /* Floating Orbs Ambient Background */
+    .floating-orbs-bg {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.42;
+      will-change: transform;
+      pointer-events: none;
+    }
+
+    .orb-amber {
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.4) 0%, rgba(251, 191, 36, 0.08) 65%, transparent 100%);
+      top: -100px;
+      left: -80px;
+      animation: orbFloat1 24s ease-in-out infinite alternate;
+    }
+
+    .orb-teal {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, rgba(13, 148, 136, 0.35) 0%, rgba(45, 212, 191, 0.08) 65%, transparent 100%);
+      top: 25%;
+      right: -120px;
+      animation: orbFloat2 30s ease-in-out infinite alternate;
+    }
+
+    .orb-rose {
+      width: 460px;
+      height: 460px;
+      background: radial-gradient(circle, rgba(225, 29, 72, 0.32) 0%, rgba(251, 113, 133, 0.08) 65%, transparent 100%);
+      bottom: 20%;
+      left: 5%;
+      animation: orbFloat3 28s ease-in-out infinite alternate;
+    }
+
+    .orb-blue {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.35) 0%, rgba(96, 165, 250, 0.08) 65%, transparent 100%);
+      bottom: -140px;
+      right: 12%;
+      animation: orbFloat4 32s ease-in-out infinite alternate;
+    }
+
+    .orb-purple {
+      width: 440px;
+      height: 440px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.28) 0%, rgba(192, 132, 252, 0.06) 65%, transparent 100%);
+      top: 15%;
+      left: 42%;
+      animation: orbFloat5 26s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbFloat1 {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(130px, 80px) scale(1.12); }
+      100% { transform: translate(60px, 170px) scale(0.95); }
+    }
+
+    @keyframes orbFloat2 {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-110px, 120px) scale(1.08); }
+      100% { transform: translate(-170px, -60px) scale(0.92); }
+    }
+
+    @keyframes orbFloat3 {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(140px, -100px) scale(1.14); }
+      100% { transform: translate(-80px, -50px) scale(0.9); }
+    }
+
+    @keyframes orbFloat4 {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-120px, -90px) scale(1.1); }
+      100% { transform: translate(-50px, -150px) scale(0.95); }
+    }
+
+    @keyframes orbFloat5 {
+      0% { transform: translate(0, 0) scale(0.92); }
+      50% { transform: translate(-80px, 90px) scale(1.1); }
+      100% { transform: translate(100px, 40px) scale(1); }
+    }
+
+    /* Relative positioning for foreground contents */
+    header.studio-header,
+    nav.pipeline-stepper-rail,
+    main.pipeline-stages {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Glassmorphism overrides for header, nav & cards */
+    header.studio-header {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    }
+
+    .pipeline-stepper-rail {
+      background: rgba(255, 255, 255, 0.82) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03) !important;
+    }
+
+    .stage-card {
+      background: rgba(255, 255, 255, 0.72) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.85) !important;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.02) !important;
+      border-radius: var(--radius-lg);
+      transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease !important;
+    }
+
+    .stage-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.03) !important;
+      border-color: rgba(255, 255, 255, 1) !important;
+    }
+
+    .stage-header {
+      background: rgba(255, 255, 255, 0.55) !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+    }
+
+    .stage-header:hover {
+      background: rgba(255, 255, 255, 0.8) !important;
+    }
+</style>
 </head>
 <body>
+
+  <!-- Floating Orbs Ambient Glassmorphism Background -->
+  <div class="floating-orbs-bg" aria-hidden="true">
+    <div class="floating-orb orb-amber"></div>
+    <div class="floating-orb orb-teal"></div>
+    <div class="floating-orb orb-rose"></div>
+    <div class="floating-orb orb-blue"></div>
+    <div class="floating-orb orb-purple"></div>
+  </div>
 
   <!-- Studio Header -->
   <header class="studio-header">
@@ -2368,7 +2536,20 @@
     function runBPESimulation(rawText, maxMerges = 32) {
       const words = preTokenize(rawText);
       if (words.length === 0) {
-        return { steps: [], mergeRules: [], vocabMap: {}, initialVocab: [] };
+        return {
+          steps: [{
+            step: 0,
+            mergedPair: null,
+            pairFreq: 0,
+            vocabList: [],
+            vocabMap: {},
+            wordTokens: [],
+            stats: { charCount: 0, tokenCount: 0, vocabSize: 0, compressionRatio: '1.00' }
+          }],
+          mergeRules: [],
+          vocabMap: {},
+          initialVocab: []
+        };
       }
 
       const wordFreqs = new Map();
@@ -2507,16 +2688,25 @@
           currentTokens = nextTokens;
         }
 
-        for (const tok of currentTokens) {
+        let isLeading = false;
+        if (currentTokens[0] === '▁') {
+          isLeading = true;
+          currentTokens.shift();
+        }
+        for (let tIdx = 0; tIdx < currentTokens.length; tIdx++) {
+          const tok = currentTokens[tIdx];
+          const hasPrefix = (tIdx === 0 && isLeading) || tok.startsWith('▁');
           const clean = tok.replace(/^▁/, '');
-          const id = vocabMap[tok] !== undefined ? vocabMap[tok] : (vocabMap[clean] !== undefined ? vocabMap[clean] : -1);
+          if (!clean) continue;
+          const fullTok = (tIdx === 0 && isLeading && !tok.startsWith('▁')) ? ('▁' + clean) : tok;
+          const id = vocabMap[fullTok] !== undefined ? vocabMap[fullTok] : (vocabMap[clean] !== undefined ? vocabMap[clean] : -1);
           resultTokens.push({
-            token: tok,
-            clean: clean || tok,
+            token: fullTok,
+            clean: clean,
             word: rawWord,
             id: id,
-            isBase: tok.length === 1 && !tok.startsWith('▁'),
-            hasPrefix: tok.startsWith('▁')
+            isBase: clean.length === 1,
+            hasPrefix: hasPrefix
           });
         }
       }
@@ -3209,12 +3399,14 @@
       const streamContainer = document.getElementById('token-stream-display');
       streamContainer.innerHTML = '';
 
-      encoded.tokens.forEach(tok => {
+      encoded.tokens.forEach((tok, ti) => {
         const chip = document.createElement('div');
-        chip.className = 'token-chip';
+        const isBase = tok.isBase;
+        chip.className = 'token-chip ' + (isBase ? 'chip-base' : 'chip-merged');
+        chip.style.animationDelay = (ti * 25) + 'ms';
         chip.innerHTML = `
           ${tok.hasPrefix ? '<span class="prefix-mark">▁</span>' : ''}
-          <span>${tok.clean}</span>
+          <span style="font-weight: 600;">${tok.clean}</span>
           <span class="tok-id">#${tok.id !== -1 ? tok.id : '?'}</span>
         `;
         streamContainer.appendChild(chip);
@@ -3229,10 +3421,10 @@
         const tr = document.createElement('tr');
         const isBase = tok.length === 1 && !tok.startsWith('▁');
         tr.innerHTML = `
-          <td style="font-weight: 700; color: ${isBase ? '#94a3b8' : '#fbbf24'};">${tok}</td>
-          <td>${id}</td>
-          <td><span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: ${isBase ? 'rgba(100,116,139,0.15)' : 'rgba(217,119,6,0.18)'}; color: ${isBase ? '#94a3b8' : '#f59e0b'};">${isBase ? 'Base' : 'Merge'}</span></td>
-          <td>${tok.length}</td>
+          <td style="font-weight: 600; color: ${isBase ? '#475569' : '#b45309'};">${tok}</td>
+          <td style="color: #64748b;">${id}</td>
+          <td><span style="font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; background: ${isBase ? 'rgba(241, 245, 249, 0.9)' : 'rgba(254, 243, 199, 0.9)'}; color: ${isBase ? '#475569' : '#92400e'}; border: 1px solid ${isBase ? 'rgba(203, 213, 225, 0.7)' : 'rgba(217, 119, 6, 0.3)'};">${isBase ? 'Base' : 'Merge'}</span></td>
+          <td style="color: #64748b;">${tok.length}</td>
         `;
         vocabTbody.appendChild(tr);
       });
@@ -3243,12 +3435,13 @@
 
       for (let i = 0; i < stepIdx; i++) {
         const rule = bpe.mergeRules[i];
+        if (!rule) continue;
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>#${i + 1}</td>
-          <td>'${rule.left}' + '${rule.right}'</td>
-          <td style="font-weight: 700; color: #fbbf24;">'${rule.merged}'</td>
-          <td>${rule.freq}×</td>
+          <td style="color: #64748b;">#${i + 1}</td>
+          <td style="color: #334155;">'${rule.left}' + '${rule.right}'</td>
+          <td style="font-weight: 700; color: #b45309;">'${rule.merged}'</td>
+          <td style="color: #64748b;">${rule.freq}×</td>
         `;
         mergesTbody.appendChild(tr);
       }
@@ -3406,25 +3599,34 @@
     }
 
     /* Full Pipeline Runner */
-    function runFullPipeline() {
+    function runFullPipeline(opts = {}) {
       // 1. Check auto-sync of sentences into corpus
       const sentA = document.getElementById('sentence-a-input').value;
       const sentB = document.getElementById('sentence-b-input').value;
       const syncChecked = document.getElementById('sync-sentences-to-corpus').checked;
 
-      let corpus = document.getElementById('bpe-corpus-input').value;
-      if (syncChecked) {
-        if (!corpus.includes(sentA)) corpus += " " + sentA;
-        if (!corpus.includes(sentB)) corpus += " " + sentB;
-        document.getElementById('bpe-corpus-input').value = corpus.trim();
+      let userCorpus = document.getElementById('bpe-corpus-input').value;
+      let effectiveCorpus = userCorpus.trim();
+
+      if (!effectiveCorpus) {
+        effectiveCorpus = (sentA + " " + sentB).trim() || "The happy cat sat on the warm mat.";
+        document.getElementById('bpe-corpus-input').value = effectiveCorpus;
+      } else if (syncChecked && opts.fromSentences) {
+        // Incorporate sentences for similarity alignment without corrupting the user's textarea content
+        if (!effectiveCorpus.includes(sentA)) effectiveCorpus += " " + sentA;
+        if (!effectiveCorpus.includes(sentB)) effectiveCorpus += " " + sentB;
       }
 
-      // 2. Train / Run BPE Simulation
-      state.bpeSimulation = runBPESimulation(corpus, 32);
+      // 2. Train / Run BPE Simulation on the effective corpus
+      state.bpeSimulation = runBPESimulation(effectiveCorpus, 32);
 
-      // 3. Run Comparison with learned vocabulary and active rules
-      const finalStep = state.bpeSimulation.steps[Math.min(state.currentMergeStep, state.bpeSimulation.steps.length - 1)];
-      const activeRules = state.bpeSimulation.mergeRules.slice(0, state.currentMergeStep);
+      // Reset or clamp currentMergeStep
+      if (opts.resetStepToMax || state.currentMergeStep >= state.bpeSimulation.steps.length) {
+        state.currentMergeStep = Math.max(0, state.bpeSimulation.steps.length - 1);
+      }
+      const activeStepIdx = Math.max(0, Math.min(state.currentMergeStep, state.bpeSimulation.steps.length - 1));
+      const finalStep = state.bpeSimulation.steps[activeStepIdx] || { vocabMap: {} };
+      const activeRules = state.bpeSimulation.mergeRules.slice(0, activeStepIdx);
 
       state.comparison = computeComparison(sentA, sentB, finalStep.vocabMap, activeRules);
 
@@ -3440,9 +3642,18 @@
     // Run Pipeline button
     document.getElementById('btn-run-all').addEventListener('click', runFullPipeline);
 
-    // Retrain BPE
+    // Retrain BPE / Tokenize & Build Vocab
     document.getElementById('btn-retrain-bpe').addEventListener('click', () => {
-      runFullPipeline();
+      runFullPipeline({ resetStepToMax: true });
+    });
+
+    // Live debounced input listener on corpus input field
+    let corpusDebounceTimer = null;
+    document.getElementById('bpe-corpus-input').addEventListener('input', () => {
+      clearTimeout(corpusDebounceTimer);
+      corpusDebounceTimer = setTimeout(() => {
+        runFullPipeline({ resetStepToMax: false });
+      }, 500);
     });
 
     // Slider for BPE step
