@@ -588,64 +588,411 @@
       transform: scale(1.15);
     }
 
-    /* Stage 1: Tokenizer Specifics */
-    .bpe-controls {
+    /* ============================================
+       Stage 1: Tokenizer — Dark-Ground Redesign
+       ============================================ */
+
+    /* Stage 1 card dark amber header */
+    #stage-tokenizer .stage-header {
+      background: linear-gradient(135deg, #1a0a00 0%, #2c1200 55%, #1a0800 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      border-bottom: 1px solid rgba(217, 119, 6, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #stage-tokenizer .stage-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(217,119,6,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(251,191,36,0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    #stage-tokenizer .stage-indicator {
+      background: var(--accent-s1) !important;
+      box-shadow: 0 0 16px rgba(217, 119, 6, 0.6);
+    }
+
+    #stage-tokenizer .stage-title-wrap h2 { color: #fef3c7; }
+    #stage-tokenizer .stage-title-wrap p  { color: rgba(254,243,199,0.55); }
+
+    #stage-tokenizer .stage-summary-chip {
+      background: rgba(217,119,6,0.15);
+      border-color: rgba(217,119,6,0.4);
+      color: #fbbf24;
+    }
+
+    #stage-tokenizer .chevron-icon { stroke: rgba(254,243,199,0.5); }
+
+    /* Stage body background */
+    #stage-tokenizer .stage-body {
+      background: #0f1117;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    /* Primary CTA: Tokenize & Build Vocab */
+    .btn-tokenize-primary {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      color: #fff;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 11px 20px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.01em;
+      transition: all var(--transition-fast);
+      box-shadow: 0 4px 14px rgba(217,119,6,0.4);
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-tokenize-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .btn-tokenize-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(217,119,6,0.55);
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .btn-tokenize-primary:active { transform: translateY(0); }
+
+    /* Corpus textarea — code-editor feel */
+    #stage-tokenizer textarea#bpe-corpus-input {
+      background: #0a0d14;
+      border: 1px solid rgba(217,119,6,0.25);
+      color: #e2d9c5;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      line-height: 1.65;
+      caret-color: #f59e0b;
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    #stage-tokenizer textarea#bpe-corpus-input:focus {
+      border-color: var(--accent-s1);
+      box-shadow: 0 0 0 3px rgba(217,119,6,0.18);
+      outline: none;
+    }
+
+    /* Test input inside stage 1 */
+    #stage-tokenizer input#bpe-test-input {
+      background: #0a0d14;
+      border: 1px solid rgba(217,119,6,0.2);
+      color: #e2d9c5;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      border-radius: var(--radius-md);
+    }
+
+    #stage-tokenizer input#bpe-test-input:focus {
+      border-color: var(--accent-s1);
+      box-shadow: 0 0 0 3px rgba(217,119,6,0.18);
+      outline: none;
+    }
+
+    /* Section divider labels */
+    .s1-section-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: rgba(217,119,6,0.65);
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
+      margin-bottom: 8px;
     }
 
-    .token-stream-box {
-      border: 1px solid var(--border-subtle);
-      background: var(--bg-card-alt);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      min-height: 70px;
+    .s1-section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(217,119,6,0.12);
+    }
+
+    /* Corpus row: editor + CTA side by side */
+    .s1-corpus-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 700px) {
+      .s1-corpus-row { grid-template-columns: 1fr; }
+    }
+
+    .s1-corpus-cta-col {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+      padding-top: 2px;
     }
 
-    .token-chip {
-      background: #ffffff;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 4px 8px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      display: inline-flex;
+    /* BPE playback bar */
+    .bpe-playbar {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      gap: 10px;
+      background: #0a0d14;
+      border: 1px solid rgba(217,119,6,0.2);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+    }
+
+    .bpe-playbar-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(217,119,6,0.7);
+      white-space: nowrap;
+    }
+
+    .bpe-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bpe-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      border: 1px solid rgba(217,119,6,0.25);
+      background: rgba(217,119,6,0.08);
+      color: #d97706;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
       transition: all var(--transition-fast);
+      font-size: 13px;
+      flex-shrink: 0;
     }
 
-    .token-chip:hover {
+    .bpe-btn:hover {
+      background: rgba(217,119,6,0.22);
       border-color: var(--accent-s1);
       transform: translateY(-1px);
     }
 
-    .token-chip .prefix-mark {
-      color: var(--accent-s1);
+    .bpe-btn:active { transform: scale(0.93); }
+
+    .bpe-step-val {
+      font-family: var(--font-mono);
+      font-size: 12px;
       font-weight: 700;
+      color: #f59e0b;
+      min-width: 54px;
+      text-align: right;
+    }
+
+    /* Slider within dark stage 1 */
+    #stage-tokenizer input[type="range"] {
+      flex: 1;
+      height: 5px;
+      background: rgba(217,119,6,0.15);
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      border-radius: 3px;
+      border: none;
+      box-shadow: none;
+    }
+
+    #stage-tokenizer input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #f59e0b;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(245,158,11,0.5);
+      transition: transform var(--transition-fast);
+    }
+
+    #stage-tokenizer input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Metric ribbon — dark amber */
+    .s1-metric-ribbon {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 800px) { .s1-metric-ribbon { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .s1-metric-ribbon { grid-template-columns: 1fr; } }
+
+    .s1-metric-card {
+      background: #0a0d14;
+      border: 1px solid rgba(217,119,6,0.18);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .s1-metric-card:hover {
+      border-color: rgba(217,119,6,0.4);
+      box-shadow: 0 0 12px rgba(217,119,6,0.07);
+      transform: translateY(-1px);
+    }
+
+    .s1-metric-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(217,119,6,0.6);
+    }
+
+    .s1-metric-val {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 800;
+      color: #f59e0b;
+      line-height: 1.1;
+    }
+
+    .s1-metric-sub {
+      font-size: 11px;
+      color: rgba(226,217,197,0.3);
+      margin-top: 2px;
+    }
+
+    @keyframes metricPulse {
+      0%   { opacity: 1; }
+      40%  { opacity: 0.35; }
+      100% { opacity: 1; }
+    }
+
+    .s1-metric-val.updating { animation: metricPulse 400ms ease; }
+
+    /* Token stream — dark */
+    .token-stream-box {
+      background: #0a0d14;
+      border: 1px solid rgba(217,119,6,0.2);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      min-height: 72px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    /* Token chips */
+    @keyframes chipIn {
+      from { opacity:0; transform:scale(0.78) translateY(5px); }
+      to   { opacity:1; transform:scale(1) translateY(0); }
+    }
+
+    .token-chip {
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all var(--transition-fast);
+      border: 1px solid transparent;
+      animation: chipIn 180ms cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .token-chip.chip-base {
+      background: rgba(100,116,139,0.12);
+      border-color: rgba(100,116,139,0.28);
+      color: #94a3b8;
+    }
+
+    .token-chip.chip-merged {
+      background: rgba(217,119,6,0.14);
+      border-color: rgba(217,119,6,0.42);
+      color: #fbbf24;
+    }
+
+    .token-chip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .token-chip .prefix-mark {
+      color: #f59e0b;
+      font-weight: 800;
+      font-size: 10px;
     }
 
     .token-chip .tok-id {
-      font-size: 10px;
-      color: var(--text-dim);
-      background: var(--bg-card-alt);
+      font-size: 9.5px;
+      color: rgba(251,191,36,0.4);
+      background: rgba(217,119,6,0.1);
       padding: 1px 4px;
       border-radius: 3px;
     }
 
+    /* Stream header */
+    .s1-stream-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .s1-stream-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(226,217,197,0.45);
+    }
+
+    .s1-token-count-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      background: rgba(217,119,6,0.15);
+      border: 1px solid rgba(217,119,6,0.3);
+      border-radius: var(--radius-pill);
+      color: #f59e0b;
+    }
+
+    /* Vocab & merge tables — dark */
     .vocab-table-container {
-      max-height: 240px;
+      max-height: 260px;
       overflow-y: auto;
-      border: 1px solid var(--border-subtle);
+      border: 1px solid rgba(217,119,6,0.18);
       border-radius: var(--radius-md);
-      background: #ffffff;
+      background: #0a0d14;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(217,119,6,0.3) transparent;
+    }
+
+    .vocab-table-container::-webkit-scrollbar { width: 5px; }
+    .vocab-table-container::-webkit-scrollbar-thumb {
+      background: rgba(217,119,6,0.3);
+      border-radius: 3px;
     }
 
     table.data-table {
@@ -655,6 +1002,22 @@
       text-align: left;
     }
 
+    /* Stage-1 specific table header override */
+    #stage-tokenizer table.data-table th {
+      background: rgba(217,119,6,0.09);
+      padding: 9px 14px;
+      font-weight: 700;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(217,119,6,0.7);
+      border-bottom: 1px solid rgba(217,119,6,0.18);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    /* Generic table header (other stages) */
     table.data-table th {
       background: var(--bg-card-alt);
       padding: 8px 14px;
@@ -666,6 +1029,14 @@
       z-index: 1;
     }
 
+    #stage-tokenizer table.data-table td {
+      padding: 8px 14px;
+      border-bottom: 1px solid rgba(217,119,6,0.07);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #c4b89a;
+    }
+
     table.data-table td {
       padding: 8px 14px;
       border-bottom: 1px solid var(--border-subtle);
@@ -673,9 +1044,46 @@
       font-size: 12px;
     }
 
-    table.data-table tr:hover {
-      background: var(--bg-card-alt);
+    #stage-tokenizer table.data-table tr:hover td {
+      background: rgba(217,119,6,0.06);
+      color: #fbbf24;
     }
+
+    table.data-table tr:hover { background: var(--bg-card-alt); }
+
+    /* NEW badge on fresh merges */
+    @keyframes badgePop {
+      from { transform:scale(0); opacity:0; }
+      to   { transform:scale(1); opacity:1; }
+    }
+
+    .merge-new-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(217,119,6,0.3);
+      color: #f59e0b;
+      margin-left: 6px;
+      animation: badgePop 500ms cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    /* Checkbox */
+    #stage-tokenizer .s1-sync-label {
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      color: rgba(226,217,197,0.4);
+      transition: color var(--transition-fast);
+    }
+
+    #stage-tokenizer .s1-sync-label:hover { color: rgba(226,217,197,0.75); }
+    #stage-tokenizer input[type="checkbox"] { accent-color: var(--accent-s1); }
 
     /* Stage 2: Embedder Specifics */
     .embed-inspector-grid {
@@ -1170,72 +1578,89 @@
       </div>
 
       <div class="stage-body">
-        <!-- Corpus Input & Training Controls -->
-        <div class="field-group">
-          <div class="field-label">
-            <span>Training Corpus (Active Input Field)</span>
-            <span class="label-aside">BPE merges are learned iteratively from bigram frequencies in this text</span>
-          </div>
-          <textarea id="bpe-corpus-input" spellcheck="false" rows="3">The happy cat sat on the warm mat. A joyful kitten rested on the soft rug. The playful puppy jumped on the green grass.</textarea>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
-            <label style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-muted);">
-              <input type="checkbox" id="sync-sentences-to-corpus" checked>
-              Auto-sync Sentence A &amp; B into corpus
-            </label>
-            <button class="btn" id="btn-retrain-bpe">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              Retrain BPE Vocabulary
-            </button>
+
+        <!-- ── Corpus Editor ── -->
+        <div>
+          <div class="s1-section-label">Training Corpus</div>
+          <div class="s1-corpus-row">
+            <div>
+              <textarea id="bpe-corpus-input" spellcheck="false" rows="4" placeholder="Paste any text to build a custom BPE vocabulary…">The happy cat sat on the warm mat. A joyful kitten rested on the soft rug. The playful puppy jumped on the green grass.</textarea>
+              <div style="margin-top: 8px;">
+                <label class="s1-sync-label">
+                  <input type="checkbox" id="sync-sentences-to-corpus" checked>
+                  Auto-sync Sentence A &amp; B into corpus
+                </label>
+              </div>
+            </div>
+            <div class="s1-corpus-cta-col">
+              <button class="btn-tokenize-primary" id="btn-retrain-bpe">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"/></svg>
+                Tokenize &amp; Build Vocab
+              </button>
+              <span style="font-size:10.5px; color:rgba(226,217,197,0.3); text-align:right; max-width:140px; line-height:1.4;">Trains BPE on corpus &amp; rebuilds vocabulary table</span>
+            </div>
           </div>
         </div>
 
-        <!-- BPE Merge Step Controls -->
-        <div class="slider-row">
-          <label for="bpe-step-slider">Merge Iteration Step:</label>
-          <div class="bpe-controls">
-            <button class="btn btn-icon" id="bpe-step-back" title="Previous Merge Step">❮</button>
-            <button class="btn btn-icon" id="bpe-play" title="Play / Pause Merges">▶</button>
-            <button class="btn btn-icon" id="bpe-step-fwd" title="Next Merge Step">❯</button>
-            <button class="btn btn-icon" id="bpe-reset" title="Reset to Character Vocab">↺</button>
-          </div>
-          <input type="range" id="bpe-step-slider" min="0" max="32" value="24" step="1">
-          <span class="slider-val-badge" id="bpe-step-val">Step 24</span>
-        </div>
-
-        <!-- Metric Ribbon -->
-        <div class="metric-ribbon">
-          <div class="metric-card">
-            <span class="metric-label">Corpus Characters</span>
-            <span class="metric-val" id="stat-char-count">118</span>
-            <span class="metric-sub">Raw input symbols</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">Tokens Produced</span>
-            <span class="metric-val" id="stat-token-count">38</span>
-            <span class="metric-sub">Current step tokens</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">Vocabulary Size</span>
-            <span class="metric-val" id="stat-vocab-size">42</span>
-            <span class="metric-sub">Base symbols + merges</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">Compression Ratio</span>
-            <span class="metric-val" id="stat-compression-ratio">3.11×</span>
-            <span class="metric-sub">Chars per token</span>
+        <!-- ── BPE Merge Playback ── -->
+        <div>
+          <div class="s1-section-label">Merge Step Playback</div>
+          <div class="bpe-playbar">
+            <span class="bpe-playbar-label">BPE Iteration</span>
+            <div class="bpe-controls">
+              <button class="bpe-btn" id="bpe-step-back" title="Previous Merge Step">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button class="bpe-btn" id="bpe-play" title="Play / Pause Merges">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </button>
+              <button class="bpe-btn" id="bpe-step-fwd" title="Next Merge Step">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button class="bpe-btn" id="bpe-reset" title="Reset to Character Vocab">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              </button>
+            </div>
+            <input type="range" id="bpe-step-slider" min="0" max="32" value="24" step="1">
+            <span class="bpe-step-val" id="bpe-step-val">Step 24</span>
           </div>
         </div>
 
-        <!-- Live Subword Test Input -->
-        <div class="field-group">
-          <div class="field-label">
-            <span>Live Tokenizer Test (Active Input Field)</span>
-            <span class="label-aside">Evaluates arbitrary user text with current trained BPE vocabulary in real-time</span>
+        <!-- ── Metrics ── -->
+        <div>
+          <div class="s1-section-label">Live Metrics</div>
+          <div class="s1-metric-ribbon">
+            <div class="s1-metric-card">
+              <span class="s1-metric-label">Corpus Chars</span>
+              <span class="s1-metric-val" id="stat-char-count">118</span>
+              <span class="s1-metric-sub">Raw input symbols</span>
+            </div>
+            <div class="s1-metric-card">
+              <span class="s1-metric-label">Tokens Produced</span>
+              <span class="s1-metric-val" id="stat-token-count">38</span>
+              <span class="s1-metric-sub">Current step</span>
+            </div>
+            <div class="s1-metric-card">
+              <span class="s1-metric-label">Vocab Size</span>
+              <span class="s1-metric-val" id="stat-vocab-size">42</span>
+              <span class="s1-metric-sub">Base + merges</span>
+            </div>
+            <div class="s1-metric-card">
+              <span class="s1-metric-label">Compression</span>
+              <span class="s1-metric-val" id="stat-compression-ratio">3.11×</span>
+              <span class="s1-metric-sub">Chars per token</span>
+            </div>
           </div>
-          <input type="text" id="bpe-test-input" value="The happy cat sat on the warm mat">
-          <div style="margin-top: 8px;">
-            <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">
-              Subword Tokens Breakdown (<span id="token-test-count">8 tokens</span>):
+        </div>
+
+        <!-- ── Live Tokenizer Test ── -->
+        <div>
+          <div class="s1-section-label">Live Tokenizer Test</div>
+          <input type="text" id="bpe-test-input" value="The happy cat sat on the warm mat" placeholder="Type any phrase to tokenize with current vocabulary…">
+          <div style="margin-top: 10px;">
+            <div class="s1-stream-header">
+              <span class="s1-stream-title">Subword Token Breakdown</span>
+              <span class="s1-token-count-badge" id="token-test-count">8 tokens</span>
             </div>
             <div class="token-stream-box" id="token-stream-display">
               <!-- Rendered token chips -->
@@ -1243,52 +1668,56 @@
           </div>
         </div>
 
-        <!-- Vocabulary & Merges Inspector -->
-        <div class="grid-2col">
-          <div>
-            <div class="field-label" style="margin-bottom: 6px;">
-              <span>Learned Vocabulary Table</span>
-              <span class="label-aside" id="vocab-table-count">42 items</span>
+        <!-- ── Vocabulary & Merges Inspector ── -->
+        <div>
+          <div class="s1-section-label">Vocabulary &amp; Merge Rules</div>
+          <div class="grid-2col">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:12px; font-weight:700; color:rgba(217,119,6,0.75);">Learned Vocabulary</span>
+                <span style="font-family:var(--font-mono); font-size:11px; color:rgba(217,119,6,0.5);" id="vocab-table-count">42 items</span>
+              </div>
+              <div class="vocab-table-container">
+                <table class="data-table" id="vocab-table">
+                  <thead>
+                    <tr>
+                      <th>Token</th>
+                      <th>ID</th>
+                      <th>Type</th>
+                      <th>Len</th>
+                    </tr>
+                  </thead>
+                  <tbody id="vocab-table-body">
+                    <!-- Generated rows -->
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div class="vocab-table-container">
-              <table class="data-table" id="vocab-table">
-                <thead>
-                  <tr>
-                    <th>Token</th>
-                    <th>ID</th>
-                    <th>Type</th>
-                    <th>Length</th>
-                  </tr>
-                </thead>
-                <tbody id="vocab-table-body">
-                  <!-- Generated rows -->
-                </tbody>
-              </table>
-            </div>
-          </div>
 
-          <div>
-            <div class="field-label" style="margin-bottom: 6px;">
-              <span>Merge Rule History Log</span>
-              <span class="label-aside">Ordered by iteration</span>
-            </div>
-            <div class="vocab-table-container">
-              <table class="data-table" id="merges-table">
-                <thead>
-                  <tr>
-                    <th>Step</th>
-                    <th>Pair Merged</th>
-                    <th>Result Token</th>
-                    <th>Frequency</th>
-                  </tr>
-                </thead>
-                <tbody id="merges-table-body">
-                  <!-- Generated rows -->
-                </tbody>
-              </table>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:12px; font-weight:700; color:rgba(217,119,6,0.75);">Merge Rule Log</span>
+                <span style="font-family:var(--font-mono); font-size:11px; color:rgba(217,119,6,0.5);">Ordered by step</span>
+              </div>
+              <div class="vocab-table-container">
+                <table class="data-table" id="merges-table">
+                  <thead>
+                    <tr>
+                      <th>Step</th>
+                      <th>Pair Merged</th>
+                      <th>Result</th>
+                      <th>Freq</th>
+                    </tr>
+                  </thead>
+                  <tbody id="merges-table-body">
+                    <!-- Generated rows -->
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
     </section>
 
@@ -2753,7 +3182,11 @@
       const stepIdx = Math.min(state.currentMergeStep, bpe.steps.length - 1);
       const stepData = bpe.steps[stepIdx];
 
-      // Update Stats
+      // Update Stats (with amber pulse on update)
+      ['stat-char-count','stat-token-count','stat-vocab-size','stat-compression-ratio'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('updating'); void el.offsetWidth; el.classList.add('updating'); }
+      });
       document.getElementById('stat-char-count').textContent = stepData.stats.charCount;
       document.getElementById('stat-token-count').textContent = stepData.stats.tokenCount;
       document.getElementById('stat-vocab-size').textContent = stepData.stats.vocabSize;
@@ -2796,9 +3229,9 @@
         const tr = document.createElement('tr');
         const isBase = tok.length === 1 && !tok.startsWith('▁');
         tr.innerHTML = `
-          <td style="font-weight: 600; color: ${isBase ? 'var(--text-main)' : 'var(--accent-s1)'};">${tok}</td>
+          <td style="font-weight: 700; color: ${isBase ? '#94a3b8' : '#fbbf24'};">${tok}</td>
           <td>${id}</td>
-          <td><span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: ${isBase ? 'var(--bg-card-alt)' : 'var(--accent-s1-light)'};">${isBase ? 'Base Char' : 'Learned Merge'}</span></td>
+          <td><span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: ${isBase ? 'rgba(100,116,139,0.15)' : 'rgba(217,119,6,0.18)'}; color: ${isBase ? '#94a3b8' : '#f59e0b'};">${isBase ? 'Base' : 'Merge'}</span></td>
           <td>${tok.length}</td>
         `;
         vocabTbody.appendChild(tr);
@@ -2814,7 +3247,7 @@
         tr.innerHTML = `
           <td>#${i + 1}</td>
           <td>'${rule.left}' + '${rule.right}'</td>
-          <td style="font-weight: 700; color: var(--accent-s1);">'${rule.merged}'</td>
+          <td style="font-weight: 700; color: #fbbf24;">'${rule.merged}'</td>
           <td>${rule.freq}×</td>
         `;
         mergesTbody.appendChild(tr);
