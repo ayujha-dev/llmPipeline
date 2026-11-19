@@ -2,6 +2,8 @@
 
 An interactive, zero-dependency browser workbench that visualizes the end-to-end text processing pipeline of Large Language Models: subword tokenization, vector embedding, semantic similarity comparison, and 3D spatial clustering.
 
+**Live Deployment:** [https://llmpipeline-chi.vercel.app](https://llmpipeline-chi.vercel.app)
+
 Built entirely in a single standalone `index.html` file using vanilla HTML5, CSS3, and JavaScript—no external libraries, frameworks, or CDNs required.
 
 ---
@@ -39,7 +41,12 @@ Built entirely in a single standalone `index.html` file using vanilla HTML5, CSS
 
 ## Getting Started
 
-No installation, build tools, or server required:
+### Option 1: Live Web App (Instant)
+Access the live deployment directly in your browser:
+👉 **[https://llmpipeline-chi.vercel.app](https://llmpipeline-chi.vercel.app)**
+
+### Option 2: Run Locally (Alternate)
+No build steps, dependencies, or local web server required:
 
 1. Clone the repository:
    ```bash
