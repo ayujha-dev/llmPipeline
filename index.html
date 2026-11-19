@@ -1,0 +1,3270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Pipeline Visualizer · Token & Embedding Studio</title>
+  <meta name="description" content="Interactive step-by-step LLM pipeline visualizer: BPE Tokenization, 4D Semantic Vector Space, Multi-Metric Similarity Suite, and Rotatable 3D Clustering.">
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-alt: #f1f5f9;
+      --border-subtle: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      
+      --accent-s1: #d97706; /* Amber / Tokenizer */
+      --accent-s2: #0d9488; /* Teal / Embedder */
+      --accent-s3: #e11d48; /* Coral-Rose / Comparison */
+      --accent-s4: #2563eb; /* Cobalt Blue / 3D Space */
+
+      --accent-s1-light: #fef3c7;
+      --accent-s2-light: #ccfbf1;
+      --accent-s3-light: #ffe4e6;
+      --accent-s4-light: #dbeafe;
+
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-pill: 9999px;
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 80px;
+    }
+
+    /* Container Wrap */
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header & Topbar */
+    header.studio-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 24px 0 20px 0;
+      position: relative;
+    }
+
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .title-group h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-group h1 .badge-studio {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      background: var(--accent-s4-light);
+      color: var(--accent-s4);
+      font-weight: 700;
+    }
+
+    .title-group p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      max-width: 800px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Preset selector pills */
+    .preset-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card-alt);
+      padding: 6px 10px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+    }
+
+    .preset-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 4px;
+    }
+
+    .btn-preset {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-preset:hover {
+      border-color: var(--accent-s4);
+      color: var(--accent-s4);
+      transform: translateY(-1px);
+    }
+
+    .btn-preset.active {
+      background: var(--accent-s4);
+      color: #ffffff;
+      border-color: var(--accent-s4);
+    }
+
+    /* Common Buttons */
+    .btn {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-main);
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-alt);
+      border-color: var(--border-strong);
+    }
+
+    .btn-primary {
+      background: var(--text-main);
+      color: #ffffff;
+      border-color: var(--text-main);
+    }
+
+    .btn-primary:hover {
+      background: #1e293b;
+      border-color: #1e293b;
+      transform: translateY(-1px);
+    }
+
+    .btn-icon {
+      padding: 6px 10px;
+    }
+
+    /* Sticky Stepper Rail */
+    .pipeline-stepper-rail {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 0;
+      box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .stepper-track {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .stepper-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .step-pill:hover {
+      border-color: var(--border-strong);
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+
+    .step-pill.active {
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .step-pill[data-stage="1"].active {
+      border-color: var(--accent-s1);
+      color: var(--accent-s1);
+    }
+    .step-pill[data-stage="2"].active {
+      border-color: var(--accent-s2);
+      color: var(--accent-s2);
+    }
+    .step-pill[data-stage="3"].active {
+      border-color: var(--accent-s3);
+      color: var(--accent-s3);
+    }
+    .step-pill[data-stage="4"].active {
+      border-color: var(--accent-s4);
+      color: var(--accent-s4);
+    }
+
+    .step-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--border-subtle);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .step-pill.active .step-num {
+      background: currentColor;
+      color: #ffffff;
+    }
+
+    .step-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 6px;
+      background: rgba(0,0,0,0.04);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+    }
+
+    .stepper-nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    /* Main Pipeline Layout */
+    main.pipeline-stages {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      margin-top: 24px;
+    }
+
+    /* Stage Card Base */
+    .stage-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      scroll-margin-top: 70px;
+    }
+
+    .stage-card:focus-within,
+    .stage-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    /* Stage Accordion Header */
+    .stage-header {
+      padding: 16px 22px;
+      background: var(--bg-card);
+      border-bottom: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--transition-fast);
+    }
+
+    .stage-header:hover {
+      background: var(--bg-card-alt);
+    }
+
+    .stage-card:not(.collapsed) .stage-header {
+      border-bottom-color: var(--border-subtle);
+    }
+
+    .stage-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .stage-indicator {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .stage-card[data-stage="1"] .stage-indicator { background: var(--accent-s1); }
+    .stage-card[data-stage="2"] .stage-indicator { background: var(--accent-s2); }
+    .stage-card[data-stage="3"] .stage-indicator { background: var(--accent-s3); }
+    .stage-card[data-stage="4"] .stage-indicator { background: var(--accent-s4); }
+
+    .stage-title-wrap h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-title-wrap p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .stage-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stage-summary-chip {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+    }
+
+    .chevron-icon {
+      width: 18px;
+      height: 18px;
+      stroke: var(--text-muted);
+      transition: transform var(--transition-fast);
+    }
+
+    .stage-card.collapsed .chevron-icon {
+      transform: rotate(-90deg);
+    }
+
+    .stage-card.collapsed .stage-body {
+      display: none;
+    }
+
+    /* Stage Body */
+    .stage-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Grid Form Layouts */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .field-label .label-aside {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--text-main);
+      transition: all var(--transition-fast);
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent-s4);
+      box-shadow: 0 0 0 3px var(--accent-s4-light);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
+    /* Metric Stat Box */
+    .metric-ribbon {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .metric-val {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* Range Sliders */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+    }
+
+    .slider-row label {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      min-width: 140px;
+    }
+
+    .slider-val-badge {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 50px;
+      text-align: right;
+      color: var(--text-main);
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border-strong);
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--text-main);
+      cursor: pointer;
+      transition: transform var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    /* Stage 1: Tokenizer Specifics */
+    .bpe-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .token-stream-box {
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card-alt);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      min-height: 70px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .token-chip {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: all var(--transition-fast);
+    }
+
+    .token-chip:hover {
+      border-color: var(--accent-s1);
+      transform: translateY(-1px);
+    }
+
+    .token-chip .prefix-mark {
+      color: var(--accent-s1);
+      font-weight: 700;
+    }
+
+    .token-chip .tok-id {
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--bg-card-alt);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .vocab-table-container {
+      max-height: 240px;
+      overflow-y: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background: var(--bg-card-alt);
+      padding: 8px 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    table.data-table td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    table.data-table tr:hover {
+      background: var(--bg-card-alt);
+    }
+
+    /* Stage 2: Embedder Specifics */
+    .embed-inspector-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 960px) {
+      .embed-inspector-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .coord-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .coord-token-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .coord-token-name {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .coord-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      background: var(--accent-s2-light);
+      color: var(--accent-s2);
+      text-transform: uppercase;
+    }
+
+    .dimension-bar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .dimension-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .dim-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .dim-val {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .dim-track {
+      height: 8px;
+      background: var(--border-subtle);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dim-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--accent-s2);
+      transition: width var(--transition-fast), left var(--transition-fast);
+      position: absolute;
+    }
+
+    /* Stage 3: Comparison Specifics */
+    .similarity-score-hero {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .similarity-score-hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .verdict-gauge-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .verdict-percent {
+      font-family: var(--font-mono);
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--accent-s3);
+      line-height: 1;
+    }
+
+    .verdict-tag-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .verdict-desc-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .dual-metric-breakdown {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .dual-metric-breakdown {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .submetric-card {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .top-pairs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .pair-match-chip {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .pair-tokens {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .pair-score-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-s3);
+    }
+
+    /* Alignment Heatmap Matrix */
+    .matrix-scroll-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      padding: 12px;
+    }
+
+    .heatmap-table {
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin: 0 auto;
+    }
+
+    .heatmap-table th, 
+    .heatmap-table td {
+      padding: 6px 10px;
+      text-align: center;
+      border: 1px solid var(--border-subtle);
+      min-width: 44px;
+    }
+
+    .heatmap-table th {
+      background: var(--bg-card-alt);
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .heatmap-table td.cell-active {
+      cursor: pointer;
+      transition: transform var(--transition-fast);
+      user-select: none;
+    }
+
+    .heatmap-table td.cell-active:hover {
+      outline: 2px solid var(--accent-s4);
+      z-index: 2;
+    }
+
+    /* Stage 4: 3D Visualizer Canvas & Controls */
+    .viz-canvas-container {
+      position: relative;
+      width: 100%;
+      height: 540px;
+      background: #0f172a; /* Deep Slate 3D background */
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    canvas#canvas-3d {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    canvas#canvas-3d:active {
+      cursor: grabbing;
+    }
+
+    .viz-overlay-hud {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      color: #f8fafc;
+      font-size: 12px;
+      pointer-events: none;
+      max-width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: opacity var(--transition-fast);
+    }
+
+    .viz-overlay-hud .hud-title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .viz-top-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .camera-preset-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-camera {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-camera:hover {
+      background: #ffffff;
+      border-color: var(--accent-s4);
+      color: var(--accent-s4);
+    }
+
+    .btn-camera.active {
+      background: var(--accent-s4);
+      color: #ffffff;
+      border-color: var(--accent-s4);
+    }
+
+    .viz-legend-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      background: var(--bg-card-alt);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .legend-diamond {
+      width: 10px;
+      height: 10px;
+      transform: rotate(45deg);
+    }
+
+    /* Maximize 3D Workspace mode */
+    .stage-card.maximized {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1000;
+      border-radius: 0;
+      margin: 0;
+      padding: 16px;
+      background: #090d16;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stage-card.maximized .stage-header {
+      background: #0f172a;
+      color: #ffffff;
+      border-bottom-color: rgba(255,255,255,0.1);
+    }
+
+    .stage-card.maximized .stage-header h2 {
+      color: #ffffff;
+    }
+
+    .stage-card.maximized .stage-body {
+      flex: 1;
+      padding: 16px 0 0 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stage-card.maximized .viz-canvas-container {
+      flex: 1;
+      height: 100%;
+    }
+
+    /* Utilities */
+    .text-mono { font-family: var(--font-mono); }
+    .muted { color: var(--text-muted); }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  </style>
+</head>
+<body>
+
+  <!-- Studio Header -->
+  <header class="studio-header">
+    <div class="container header-content">
+      <div class="header-top">
+        <div class="title-group">
+          <h1>
+            LLM Pipeline Visualizer
+            <span class="badge-studio">Interactive Studio</span>
+          </h1>
+          <p>
+            Demystifying how language models process text: from raw subwords and vocabulary building, through 4D semantic vector projections, dual-metric sentence similarity, to spatial 3D clustering.
+          </p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" id="btn-run-all" title="Execute full pipeline end-to-end">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Run Pipeline
+          </button>
+          <button class="btn" id="btn-toggle-all-cards" title="Expand or collapse all stage cards">
+            Collapse All
+          </button>
+        </div>
+      </div>
+
+      <!-- Preset Scenarios -->
+      <div class="preset-toolbar">
+        <span class="preset-label">Example Presets:</span>
+        <button class="btn-preset active" data-preset="synonyms">
+          🐱 Synonyms (Cat / Kitten)
+        </button>
+        <button class="btn-preset" data-preset="opposites">
+          ⚡ Opposites (Cat / Server Crash)
+        </button>
+        <button class="btn-preset" data-preset="royalty">
+          👑 Analogy (King / Queen)
+        </button>
+        <button class="btn-preset" data-preset="tech-nature">
+          🌲 Tech vs Nature (Neural / Forest)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sticky Pipeline Stepper Rail -->
+  <nav class="pipeline-stepper-rail" aria-label="Pipeline Stages Navigation">
+    <div class="container stepper-track">
+      <a class="step-pill active" data-stage="1" data-target="stage-tokenizer" href="#stage-tokenizer">
+        <span class="step-num">1</span>
+        <span>Tokenizer</span>
+        <span class="step-badge" id="rail-s1-badge">Vocab: 36</span>
+      </a>
+      <a class="step-pill" data-stage="2" data-target="stage-embedder" href="#stage-embedder">
+        <span class="step-num">2</span>
+        <span>Embedder</span>
+        <span class="step-badge" id="rail-s2-badge">4D Vectors</span>
+      </a>
+      <a class="step-pill" data-stage="3" data-target="stage-comparison" href="#stage-comparison">
+        <span class="step-num">3</span>
+        <span>Comparison</span>
+        <span class="step-badge" id="rail-s3-badge">Sim: 87%</span>
+      </a>
+      <a class="step-pill" data-stage="4" data-target="stage-3d-visualizer" href="#stage-3d-visualizer">
+        <span class="step-num">4</span>
+        <span>3D Visualizer</span>
+        <span class="step-badge" id="rail-s4-badge">3D Clusters</span>
+      </a>
+
+      <div class="stepper-nav-controls">
+        <span style="font-size: 11px; color: var(--text-dim);">Click step to jump &amp; expand</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Pipeline Stages Container -->
+  <main class="container pipeline-stages">
+
+    <!-- ========================================== -->
+    <!-- STAGE 1: BPE SUBWORD TOKENIZER             -->
+    <!-- ========================================== -->
+    <section class="stage-card" id="stage-tokenizer" data-stage="1">
+      <div class="stage-header" tabindex="0" role="button" aria-expanded="true">
+        <div class="stage-header-left">
+          <div class="stage-indicator">1</div>
+          <div class="stage-title-wrap">
+            <h2>Stage 1: Tokenizer &amp; Vocabulary Builder</h2>
+            <p>Visualizing iterative Byte-Pair Encoding (BPE), bigram frequencies, and active subword encoding</p>
+          </div>
+        </div>
+        <div class="stage-header-right">
+          <span class="stage-summary-chip" id="s1-summary">Tokens: 14 · Vocab: 36 · Ratio: 2.1×</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+
+      <div class="stage-body">
+        <!-- Corpus Input & Training Controls -->
+        <div class="field-group">
+          <div class="field-label">
+            <span>Training Corpus (Active Input Field)</span>
+            <span class="label-aside">BPE merges are learned iteratively from bigram frequencies in this text</span>
+          </div>
+          <textarea id="bpe-corpus-input" spellcheck="false" rows="3">The happy cat sat on the warm mat. A joyful kitten rested on the soft rug. The playful puppy jumped on the green grass.</textarea>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+            <label style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-muted);">
+              <input type="checkbox" id="sync-sentences-to-corpus" checked>
+              Auto-sync Sentence A &amp; B into corpus
+            </label>
+            <button class="btn" id="btn-retrain-bpe">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Retrain BPE Vocabulary
+            </button>
+          </div>
+        </div>
+
+        <!-- BPE Merge Step Controls -->
+        <div class="slider-row">
+          <label for="bpe-step-slider">Merge Iteration Step:</label>
+          <div class="bpe-controls">
+            <button class="btn btn-icon" id="bpe-step-back" title="Previous Merge Step">❮</button>
+            <button class="btn btn-icon" id="bpe-play" title="Play / Pause Merges">▶</button>
+            <button class="btn btn-icon" id="bpe-step-fwd" title="Next Merge Step">❯</button>
+            <button class="btn btn-icon" id="bpe-reset" title="Reset to Character Vocab">↺</button>
+          </div>
+          <input type="range" id="bpe-step-slider" min="0" max="32" value="24" step="1">
+          <span class="slider-val-badge" id="bpe-step-val">Step 24</span>
+        </div>
+
+        <!-- Metric Ribbon -->
+        <div class="metric-ribbon">
+          <div class="metric-card">
+            <span class="metric-label">Corpus Characters</span>
+            <span class="metric-val" id="stat-char-count">118</span>
+            <span class="metric-sub">Raw input symbols</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Tokens Produced</span>
+            <span class="metric-val" id="stat-token-count">38</span>
+            <span class="metric-sub">Current step tokens</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Vocabulary Size</span>
+            <span class="metric-val" id="stat-vocab-size">42</span>
+            <span class="metric-sub">Base symbols + merges</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Compression Ratio</span>
+            <span class="metric-val" id="stat-compression-ratio">3.11×</span>
+            <span class="metric-sub">Chars per token</span>
+          </div>
+        </div>
+
+        <!-- Live Subword Test Input -->
+        <div class="field-group">
+          <div class="field-label">
+            <span>Live Tokenizer Test (Active Input Field)</span>
+            <span class="label-aside">Evaluates arbitrary user text with current trained BPE vocabulary in real-time</span>
+          </div>
+          <input type="text" id="bpe-test-input" value="The happy cat sat on the warm mat">
+          <div style="margin-top: 8px;">
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">
+              Subword Tokens Breakdown (<span id="token-test-count">8 tokens</span>):
+            </div>
+            <div class="token-stream-box" id="token-stream-display">
+              <!-- Rendered token chips -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Vocabulary & Merges Inspector -->
+        <div class="grid-2col">
+          <div>
+            <div class="field-label" style="margin-bottom: 6px;">
+              <span>Learned Vocabulary Table</span>
+              <span class="label-aside" id="vocab-table-count">42 items</span>
+            </div>
+            <div class="vocab-table-container">
+              <table class="data-table" id="vocab-table">
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Length</th>
+                  </tr>
+                </thead>
+                <tbody id="vocab-table-body">
+                  <!-- Generated rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <div class="field-label" style="margin-bottom: 6px;">
+              <span>Merge Rule History Log</span>
+              <span class="label-aside">Ordered by iteration</span>
+            </div>
+            <div class="vocab-table-container">
+              <table class="data-table" id="merges-table">
+                <thead>
+                  <tr>
+                    <th>Step</th>
+                    <th>Pair Merged</th>
+                    <th>Result Token</th>
+                    <th>Frequency</th>
+                  </tr>
+                </thead>
+                <tbody id="merges-table-body">
+                  <!-- Generated rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- STAGE 2: CALIBRATED 4D EMBEDDER            -->
+    <!-- ========================================== -->
+    <section class="stage-card" id="stage-embedder" data-stage="2">
+      <div class="stage-header" tabindex="0" role="button" aria-expanded="true">
+        <div class="stage-header-left">
+          <div class="stage-indicator">2</div>
+          <div class="stage-title-wrap">
+            <h2>Stage 2: Embedder (4D Vector Projections)</h2>
+            <p>Mapping tokens to explainable geometric dimensions: Domain, Origin/Life, Valence, and Dynamism</p>
+          </div>
+        </div>
+        <div class="stage-header-right">
+          <span class="stage-summary-chip" id="s2-summary">Active Tokens: 12 · 4D Space</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+
+      <div class="stage-body">
+        <!-- Custom Token Probe Input -->
+        <div class="field-group">
+          <div class="field-label">
+            <span>Custom Token / Word Probe (Active Input Field)</span>
+            <span class="label-aside">Type any word or subword to inspect its coordinates and morphological decomposition</span>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="embed-probe-input" value="kitten" placeholder="Enter word to inspect...">
+            <button class="btn btn-primary" id="btn-probe-embed">Inspect Coordinates</button>
+          </div>
+          <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Quick Probes:</span>
+            <button class="btn-preset" data-probe="cat">cat</button>
+            <button class="btn-preset" data-probe="server">server</button>
+            <button class="btn-preset" data-probe="joyfulness">joyfulness (affixes)</button>
+            <button class="btn-probe-chip btn-preset" data-probe="cybersecurity">cybersecurity (compound)</button>
+            <button class="btn-preset" data-probe="crashed">crashed</button>
+            <button class="btn-preset" data-probe="forest">forest</button>
+          </div>
+        </div>
+
+        <!-- Inspector Grid -->
+        <div class="embed-inspector-grid">
+          <!-- Token Inspector Card -->
+          <div class="coord-card" id="selected-coord-card">
+            <div class="coord-token-title">
+              <span class="coord-token-name" id="probe-token-display">"kitten"</span>
+              <span class="coord-tag" id="probe-category-display">animal</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: var(--font-mono); font-size: 12px;">
+              <div><strong>Norm (||v||):</strong> <span id="probe-norm-val">0.92</span></div>
+              <div><strong>Stopword:</strong> <span id="probe-stopword-val">No</span></div>
+            </div>
+
+            <!-- Dimension Breakdown Bars -->
+            <div class="dimension-bar-list">
+              <div class="dimension-bar-item">
+                <div class="dim-meta">
+                  <span>X: Domain (Domestic [-1] ↔ Tech [+1])</span>
+                  <span class="dim-val" id="probe-x-val">-0.74</span>
+                </div>
+                <div class="dim-track"><div class="dim-fill" id="probe-x-fill" style="left: 13%; width: 37%;"></div></div>
+              </div>
+
+              <div class="dimension-bar-item">
+                <div class="dim-meta">
+                  <span>Y: Origin (Nature/Bio [-1] ↔ Machine [+1])</span>
+                  <span class="dim-val" id="probe-y-val">-0.88</span>
+                </div>
+                <div class="dim-track"><div class="dim-fill" id="probe-y-fill" style="left: 6%; width: 44%;"></div></div>
+              </div>
+
+              <div class="dimension-bar-item">
+                <div class="dim-meta">
+                  <span>Z: Valence (Hostile/Cold [-1] ↔ Warm/Joy [+1])</span>
+                  <span class="dim-val" id="probe-z-val">+0.58</span>
+                </div>
+                <div class="dim-track"><div class="dim-fill" id="probe-z-fill" style="left: 50%; width: 29%;"></div></div>
+              </div>
+
+              <div class="dimension-bar-item">
+                <div class="dim-meta">
+                  <span>W: Dynamism (Static [0] ↔ Active [1])</span>
+                  <span class="dim-val" id="probe-w-val">0.45</span>
+                </div>
+                <div class="dim-track"><div class="dim-fill" id="probe-w-fill" style="left: 0; width: 45%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Sentence Tokens Coordinates Table -->
+          <div>
+            <div class="field-label" style="margin-bottom: 6px;">
+              <span>Active Sentence Tokens in Vector Space</span>
+              <span class="label-aside">Click row to inspect on 3D canvas</span>
+            </div>
+            <div class="vocab-table-container" style="max-height: 250px;">
+              <table class="data-table" id="tokens-coords-table">
+                <thead>
+                  <tr>
+                    <th>Src</th>
+                    <th>Token</th>
+                    <th>X (Domain)</th>
+                    <th>Y (Origin)</th>
+                    <th>Z (Valence)</th>
+                    <th>Norm</th>
+                    <th>Category</th>
+                  </tr>
+                </thead>
+                <tbody id="tokens-coords-tbody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- STAGE 3: SEMANTIC SIMILARITY SUITE         -->
+    <!-- ========================================== -->
+    <section class="stage-card" id="stage-comparison" data-stage="3">
+      <div class="stage-header" tabindex="0" role="button" aria-expanded="true">
+        <div class="stage-header-left">
+          <div class="stage-indicator">3</div>
+          <div class="stage-title-wrap">
+            <h2>Stage 3: Sentence Comparison &amp; Similarity Suite</h2>
+            <p>Dual-metric evaluation: Directional Centroid Cosine &amp; Soft Chamfer Token-Level Alignment</p>
+          </div>
+        </div>
+        <div class="stage-header-right">
+          <span class="stage-summary-chip" id="s3-summary">Cosine: 0.84 · Alignment: 0.89 (Strong)</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+
+      <div class="stage-body">
+        <!-- Dual Sentence Active Inputs -->
+        <div class="grid-2col">
+          <div class="field-group">
+            <div class="field-label">
+              <span style="color: var(--accent-s4); font-weight: 700;">Sentence A (Active Input Field)</span>
+              <span class="label-aside" id="sent-a-token-badge">8 tokens</span>
+            </div>
+            <textarea id="sentence-a-input" spellcheck="false" rows="2">The happy cat sat on the warm mat</textarea>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <span style="color: var(--accent-s3); font-weight: 700;">Sentence B (Active Input Field)</span>
+              <span class="label-aside" id="sent-b-token-badge">8 tokens</span>
+            </div>
+            <textarea id="sentence-b-input" spellcheck="false" rows="2">A joyful kitten rested on the soft rug</textarea>
+          </div>
+        </div>
+
+        <!-- Similarity Metrics Hero -->
+        <div class="similarity-score-hero">
+          <div class="verdict-gauge-card">
+            <span class="verdict-percent" id="sim-composite-score">87.4%</span>
+            <span class="verdict-tag-badge" id="sim-verdict-tag" style="background: var(--accent-s2-light); color: var(--accent-s2);">
+              Strong Match
+            </span>
+            <span class="verdict-desc-text" id="sim-verdict-desc">
+              Sentences refer to the same conceptual field with aligned subjects and sentiment.
+            </span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="dual-metric-breakdown">
+              <div class="submetric-card">
+                <span class="metric-label">Centroid Cosine Alignment</span>
+                <span class="metric-val" id="metric-centroid-cos">0.842</span>
+                <span class="metric-sub">Global semantic angle cos(c_A, c_B)</span>
+              </div>
+              <div class="submetric-card">
+                <span class="metric-label">Soft Chamfer Alignment</span>
+                <span class="metric-val" id="metric-soft-align">0.891</span>
+                <span class="metric-sub">Bidirectional token affinity pooling</span>
+              </div>
+            </div>
+
+            <!-- Top Aligned Cross-Sentence Pairs -->
+            <div>
+              <div class="field-label" style="margin-bottom: 6px;">
+                <span>Highest-Affinity Aligned Token Pairs</span>
+                <span class="label-aside">Cos &gt; 0.65 connecting bonds</span>
+              </div>
+              <div class="top-pairs-grid" id="top-pairs-container">
+                <!-- Injected cards -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pairwise Similarity Heatmap Matrix -->
+        <div class="field-group">
+          <div class="field-label">
+            <span>Pairwise Cosine Similarity Matrix (Sentence A × Sentence B)</span>
+            <span class="label-aside">Hover cell to highlight token bond in 3D canvas</span>
+          </div>
+          <div class="matrix-scroll-wrapper">
+            <table class="heatmap-table" id="alignment-matrix">
+              <!-- Dynamically generated heatmap -->
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- STAGE 4: INTERACTIVE 3D VISUALIZER         -->
+    <!-- ========================================== -->
+    <section class="stage-card" id="stage-3d-visualizer" data-stage="4">
+      <div class="stage-header" tabindex="0" role="button" aria-expanded="true">
+        <div class="stage-header-left">
+          <div class="stage-indicator">4</div>
+          <div class="stage-title-wrap">
+            <h2>Stage 4: Interactive 3D Vector Space &amp; Cluster Visualizer</h2>
+            <p>Spatial clustering of tokens and sentences, rotatable orbit camera, and semantic axes</p>
+          </div>
+        </div>
+        <div class="stage-header-right">
+          <span class="stage-summary-chip" id="s4-summary">Interactive 3D · Orbit Active</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+
+      <div class="stage-body">
+        <!-- Visualizer Top Controls -->
+        <div class="viz-top-controls">
+          <div class="camera-preset-group">
+            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-right: 4px;">Camera:</span>
+            <button class="btn-camera active" data-cam="iso">Isometric</button>
+            <button class="btn-camera" data-cam="xy">Top (X-Y)</button>
+            <button class="btn-camera" data-cam="xz">Front (X-Z)</button>
+            <button class="btn-camera" data-cam="yz">Side (Y-Z)</button>
+            <button class="btn-camera" id="btn-reset-cam">Reset</button>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="btn" id="btn-toggle-orbit">
+              <span id="orbit-indicator" style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
+              Auto-Orbit
+            </button>
+            <button class="btn btn-primary" id="btn-maximize-3d">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+              <span id="maximize-btn-text">Maximize 3D</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sliders: Cohesion & Similarity Link Threshold -->
+        <div class="grid-2col">
+          <div class="slider-row">
+            <label for="cohesion-slider">Cluster Cohesion:</label>
+            <input type="range" id="cohesion-slider" min="0.2" max="2.0" step="0.05" value="1.0">
+            <span class="slider-val-badge" id="cohesion-val">1.0×</span>
+          </div>
+
+          <div class="slider-row">
+            <label for="threshold-slider">Link Threshold (Cos):</label>
+            <input type="range" id="threshold-slider" min="0.0" max="0.95" step="0.05" value="0.65">
+            <span class="slider-val-badge" id="threshold-val">0.65</span>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="viz-canvas-container" id="canvas-container">
+          <canvas id="canvas-3d"></canvas>
+          
+          <!-- Floating HUD Node Inspector -->
+          <div class="viz-overlay-hud" id="hud-inspector">
+            <div class="hud-title" id="hud-token-name">Select or hover a node</div>
+            <div id="hud-origin-tag" style="font-size: 11px; color: #94a3b8;">Click any sphere in 3D space to lock inspector</div>
+            <div id="hud-coords" style="font-family: var(--font-mono); font-size: 11px; margin-top: 2px;"></div>
+            <div id="hud-neighbors" style="font-size: 11px; color: #cbd5e1; margin-top: 2px;"></div>
+          </div>
+        </div>
+
+        <!-- Legend Bar -->
+        <div class="viz-legend-bar">
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #3b82f6;"></span>
+            <span>Sentence A Tokens</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #f43f5e;"></span>
+            <span>Sentence B Tokens</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #f59e0b;"></span>
+            <span>Custom Probe</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-diamond" style="background: #60a5fa;"></span>
+            <span>Centroid A</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-diamond" style="background: #fb7185;"></span>
+            <span>Centroid B</span>
+          </div>
+          <div class="legend-item">
+            <span style="display: inline-block; width: 14px; height: 2px; background: #38bdf8;"></span>
+            <span>Cross-Sentence Bond</span>
+          </div>
+          <div style="margin-left: auto; font-size: 11px;">
+            <span>Drag to rotate · Scroll to zoom · Right-click to pan</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Pure Vanilla Engine Script -->
+  <script>
+    /* ==========================================================================
+       1. STOPWORDS & CALIBRATED SEMANTIC LEXICON
+       ========================================================================== */
+    const STOPWORDS = new Set([
+      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
+      'from', 'up', 'about', 'into', 'over', 'after', 'is', 'are', 'was', 'were', 'be', 'been',
+      'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'shall', 'should',
+      'can', 'could', 'may', 'might', 'must', 'that', 'this', 'these', 'those', 'it', 'its',
+      'as', 'if', 'so', 'than', 'too', 'very', 'just'
+    ]);
+
+    // 4-Dimensional explainable semantic anchors:
+    // X (D1): Domain & Concreteness (Physical/Domestic [-1] <-> Abstract/Digital/Tech [+1])
+    // Y (D2): Origin & Life (Biological/Nature/Living [-1] <-> Machine/Artificial/System [+1])
+    // Z (D3): Sentiment & Valence (Negative/Hostile/Cold [-1] <-> Positive/Warm/Joyful [+1])
+    // W (D4): Agency / Dynamism (Static/Object [0] <-> Active/Verbal [1])
+    const LEXICON = {
+      // Animals & Pets
+      "cat":       { x: -0.72, y: -0.85, z: 0.42, w: 0.35, cat: "animal" },
+      "kitten":    { x: -0.74, y: -0.88, z: 0.58, w: 0.45, cat: "animal" },
+      "feline":    { x: -0.70, y: -0.84, z: 0.38, w: 0.30, cat: "animal" },
+      "kitty":     { x: -0.75, y: -0.89, z: 0.62, w: 0.45, cat: "animal" },
+      "dog":       { x: -0.70, y: -0.86, z: 0.60, w: 0.55, cat: "animal" },
+      "puppy":     { x: -0.73, y: -0.89, z: 0.72, w: 0.65, cat: "animal" },
+      "canine":    { x: -0.68, y: -0.83, z: 0.45, w: 0.40, cat: "animal" },
+      "bird":      { x: -0.65, y: -0.90, z: 0.45, w: 0.60, cat: "animal" },
+      "fish":      { x: -0.70, y: -0.92, z: 0.25, w: 0.45, cat: "animal" },
+      "lion":      { x: -0.60, y: -0.86, z: 0.25, w: 0.75, cat: "animal" },
+      "tiger":     { x: -0.61, y: -0.85, z: 0.20, w: 0.78, cat: "animal" },
+      "wolf":      { x: -0.63, y: -0.86, z: 0.05, w: 0.70, cat: "animal" },
+      "horse":     { x: -0.68, y: -0.88, z: 0.48, w: 0.65, cat: "animal" },
+      "rabbit":    { x: -0.76, y: -0.90, z: 0.52, w: 0.50, cat: "animal" },
+      "mouse":     { x: -0.74, y: -0.84, z: 0.15, w: 0.45, cat: "animal" },
+
+      // Domestic & Furnishings
+      "mat":       { x: -0.82, y: -0.25, z: 0.25, w: 0.10, cat: "domestic" },
+      "rug":       { x: -0.84, y: -0.28, z: 0.32, w: 0.10, cat: "domestic" },
+      "carpet":    { x: -0.83, y: -0.26, z: 0.30, w: 0.10, cat: "domestic" },
+      "blanket":   { x: -0.85, y: -0.32, z: 0.50, w: 0.10, cat: "domestic" },
+      "pillow":    { x: -0.86, y: -0.30, z: 0.55, w: 0.10, cat: "domestic" },
+      "chair":     { x: -0.80, y: -0.15, z: 0.20, w: 0.12, cat: "domestic" },
+      "sofa":      { x: -0.82, y: -0.20, z: 0.45, w: 0.10, cat: "domestic" },
+      "bed":       { x: -0.86, y: -0.24, z: 0.52, w: 0.10, cat: "domestic" },
+      "table":     { x: -0.81, y: -0.10, z: 0.15, w: 0.10, cat: "domestic" },
+      "floor":     { x: -0.85, y: -0.10, z: 0.10, w: 0.05, cat: "domestic" },
+      "room":      { x: -0.78, y: -0.05, z: 0.20, w: 0.10, cat: "domestic" },
+      "house":     { x: -0.82, y: -0.12, z: 0.45, w: 0.10, cat: "domestic" },
+      "home":      { x: -0.84, y: -0.22, z: 0.65, w: 0.12, cat: "domestic" },
+
+      // Nature & Earth
+      "tree":      { x: -0.65, y: -0.92, z: 0.40, w: 0.15, cat: "nature" },
+      "flower":    { x: -0.70, y: -0.95, z: 0.65, w: 0.20, cat: "nature" },
+      "forest":    { x: -0.60, y: -0.93, z: 0.45, w: 0.25, cat: "nature" },
+      "grass":     { x: -0.72, y: -0.93, z: 0.38, w: 0.15, cat: "nature" },
+      "green":     { x: -0.65, y: -0.88, z: 0.45, w: 0.10, cat: "nature" },
+      "river":     { x: -0.55, y: -0.88, z: 0.48, w: 0.50, cat: "nature" },
+      "ocean":     { x: -0.48, y: -0.85, z: 0.38, w: 0.55, cat: "nature" },
+      "mountain":  { x: -0.52, y: -0.80, z: 0.35, w: 0.15, cat: "nature" },
+      "sun":       { x: -0.40, y: -0.75, z: 0.75, w: 0.40, cat: "nature" },
+      "sky":       { x: -0.42, y: -0.78, z: 0.48, w: 0.20, cat: "nature" },
+
+      // Sentiment & Valence (Warm / Positive vs Negative / Cold)
+      "happy":       { x: -0.25, y: -0.65, z: 0.86, w: 0.60, cat: "sentiment" },
+      "joy":         { x: -0.20, y: -0.68, z: 0.92, w: 0.65, cat: "sentiment" },
+      "joyful":      { x: -0.22, y: -0.67, z: 0.90, w: 0.65, cat: "sentiment" },
+      "joyfulness":  { x: -0.21, y: -0.66, z: 0.89, w: 0.60, cat: "sentiment" },
+      "cheerful":    { x: -0.28, y: -0.66, z: 0.82, w: 0.65, cat: "sentiment" },
+      "playful":     { x: -0.45, y: -0.72, z: 0.84, w: 0.75, cat: "sentiment" },
+      "warm":        { x: -0.60, y: -0.50, z: 0.72, w: 0.35, cat: "sentiment" },
+      "soft":        { x: -0.75, y: -0.45, z: 0.68, w: 0.20, cat: "sentiment" },
+      "good":        { x: -0.20, y: -0.45, z: 0.70, w: 0.40, cat: "sentiment" },
+      "love":        { x: -0.15, y: -0.72, z: 0.95, w: 0.70, cat: "sentiment" },
+      "peace":       { x: -0.25, y: -0.75, z: 0.85, w: 0.20, cat: "sentiment" },
+      "peaceful":    { x: -0.28, y: -0.76, z: 0.86, w: 0.20, cat: "sentiment" },
+      "serene":      { x: -0.30, y: -0.74, z: 0.80, w: 0.20, cat: "sentiment" },
+      "noble":       { x: -0.05, y: -0.58, z: 0.75, w: 0.50, cat: "sentiment" },
+      "wise":        { x: 0.05,  y: -0.62, z: 0.78, w: 0.45, cat: "sentiment" },
+
+      "sad":         { x: -0.30, y: -0.60, z: -0.78, w: 0.30, cat: "sentiment" },
+      "angry":       { x: -0.20, y: -0.50, z: -0.80, w: 0.85, cat: "sentiment" },
+      "furious":     { x: -0.18, y: -0.52, z: -0.88, w: 0.90, cat: "sentiment" },
+      "hate":        { x: -0.10, y: -0.55, z: -0.92, w: 0.80, cat: "sentiment" },
+      "bad":         { x: -0.15, y: -0.40, z: -0.65, w: 0.40, cat: "sentiment" },
+      "cold":        { x: -0.45, y: -0.30, z: -0.55, w: 0.25, cat: "sentiment" },
+      "dark":        { x: -0.35, y: -0.40, z: -0.60, w: 0.30, cat: "sentiment" },
+      "pain":        { x: -0.35, y: -0.68, z: -0.85, w: 0.60, cat: "sentiment" },
+
+      // Technology & Digital Computing
+      "computer":    { x: 0.82,  y: 0.88,  z: 0.20, w: 0.40, cat: "tech" },
+      "server":      { x: 0.85,  y: 0.90,  z: 0.10, w: 0.50, cat: "tech" },
+      "database":    { x: 0.86,  y: 0.89,  z: 0.12, w: 0.45, cat: "tech" },
+      "cloud":       { x: 0.78,  y: 0.85,  z: 0.25, w: 0.45, cat: "tech" },
+      "network":     { x: 0.80,  y: 0.82,  z: 0.22, w: 0.55, cat: "tech" },
+      "software":    { x: 0.86,  y: 0.85,  z: 0.22, w: 0.50, cat: "tech" },
+      "code":        { x: 0.84,  y: 0.82,  z: 0.20, w: 0.55, cat: "tech" },
+      "robot":       { x: 0.80,  y: 0.92,  z: 0.20, w: 0.70, cat: "tech" },
+      "digital":     { x: 0.86,  y: 0.86,  z: 0.24, w: 0.40, cat: "tech" },
+      "neural":      { x: 0.76,  y: 0.40,  z: 0.28, w: 0.60, cat: "tech" },
+      "model":       { x: 0.72,  y: 0.65,  z: 0.30, w: 0.55, cat: "tech" },
+      "token":       { x: 0.78,  y: 0.72,  z: 0.20, w: 0.35, cat: "tech" },
+      "embedding":   { x: 0.82,  y: 0.68,  z: 0.28, w: 0.45, cat: "tech" },
+      "tensor":      { x: 0.85,  y: 0.70,  z: 0.22, w: 0.40, cat: "tech" },
+      "tensors":     { x: 0.85,  y: 0.70,  z: 0.22, w: 0.40, cat: "tech" },
+      "crash":       { x: 0.65,  y: 0.70,  z: -0.78, w: 0.85, cat: "tech" },
+      "crashed":     { x: 0.64,  y: 0.68,  z: -0.80, w: 0.82, cat: "tech" },
+      "error":       { x: 0.70,  y: 0.75,  z: -0.75, w: 0.55, cat: "tech" },
+      "errors":      { x: 0.70,  y: 0.75,  z: -0.76, w: 0.55, cat: "tech" },
+      "critical":    { x: 0.40,  y: 0.35,  z: -0.70, w: 0.75, cat: "tech" },
+
+      // Royalty & Roles
+      "king":        { x: -0.10, y: -0.65, z: 0.45, w: 0.70, cat: "royalty" },
+      "queen":       { x: -0.12, y: -0.68, z: 0.55, w: 0.68, cat: "royalty" },
+      "monarch":     { x: -0.05, y: -0.60, z: 0.40, w: 0.65, cat: "royalty" },
+      "land":        { x: -0.60, y: -0.85, z: 0.40, w: 0.20, cat: "royalty" },
+      "kingdom":     { x: -0.30, y: -0.55, z: 0.50, w: 0.30, cat: "royalty" },
+
+      // Actions & Verbs
+      "sat":         { x: -0.70, y: -0.50, z: 0.30, w: 0.30, cat: "action" },
+      "sit":         { x: -0.68, y: -0.48, z: 0.30, w: 0.35, cat: "action" },
+      "rested":      { x: -0.72, y: -0.55, z: 0.55, w: 0.25, cat: "action" },
+      "rest":        { x: -0.70, y: -0.54, z: 0.55, w: 0.25, cat: "action" },
+      "jumped":      { x: -0.45, y: -0.58, z: 0.50, w: 0.85, cat: "action" },
+      "jump":        { x: -0.45, y: -0.58, z: 0.50, w: 0.85, cat: "action" },
+      "process":     { x: 0.75,  y: 0.70,  z: 0.20, w: 0.80, cat: "action" },
+      "flow":        { x: -0.45, y: -0.82, z: 0.50, w: 0.75, cat: "action" },
+      "flowed":      { x: -0.45, y: -0.82, z: 0.50, w: 0.70, cat: "action" },
+      "ruled":       { x: 0.00,  y: -0.55, z: 0.50, w: 0.80, cat: "action" },
+      "governed":    { x: 0.05,  y: -0.50, z: 0.55, w: 0.80, cat: "action" }
+    };
+
+    const PREFIXES = [
+      { prefix: 'super', dx: 0.10, dy: 0.00, dz: 0.20, dw: 0.15 },
+      { prefix: 'cyber', dx: 0.45, dy: 0.45, dz: 0.00, dw: 0.10 },
+      { prefix: 'neuro', dx: 0.35, dy: -0.15, dz: 0.05, dw: 0.10 },
+      { prefix: 'micro', dx: 0.20, dy: 0.25, dz: 0.00, dw: 0.00 },
+      { prefix: 'anti',  dx: 0.00, dy: 0.00, dz: -0.35, dw: 0.20 },
+      { prefix: 'un',    dx: 0.00, dy: 0.00, dz: -0.40, dw: 0.00 },
+      { prefix: 'dis',   dx: 0.00, dy: 0.00, dz: -0.35, dw: 0.00 },
+      { prefix: 'non',   dx: 0.00, dy: 0.00, dz: -0.15, dw: 0.00 },
+      { prefix: 're',    dx: 0.05, dy: 0.00, dz: 0.05,  dw: 0.25 }
+    ];
+
+    const SUFFIXES = [
+      { suffix: 'ness',  dx: 0.05, dy: -0.05, dz: 0.00, dw: -0.20 },
+      { suffix: 'ful',   dx: -0.05, dy: -0.05, dz: 0.25, dw: 0.10 },
+      { suffix: 'fully', dx: -0.05, dy: -0.05, dz: 0.25, dw: 0.15 },
+      { suffix: 'less',  dx: 0.05, dy: 0.05,  dz: -0.30, dw: -0.10 },
+      { suffix: 'ing',   dx: 0.00, dy: 0.00,  dz: 0.05, dw: 0.35 },
+      { suffix: 'ed',    dx: -0.05, dy: 0.00, dz: 0.00, dw: -0.10 },
+      { suffix: 'er',    dx: 0.00, dy: -0.10, dz: 0.10, dw: 0.30 },
+      { suffix: 'ly',    dx: 0.05, dy: 0.00,  dz: 0.05, dw: 0.15 },
+      { suffix: 'able',  dx: 0.10, dy: 0.00,  dz: 0.15, dw: 0.20 },
+      { suffix: 'tion',  dx: 0.15, dy: 0.10,  dz: 0.00, dw: 0.00 },
+      { suffix: 'ity',   dx: 0.15, dy: 0.05,  dz: 0.00, dw: -0.10 }
+    ];
+
+    function sanitizeToken(token) {
+      if (!token) return '';
+      return token.toString().toLowerCase().replace(/^▁/, '').replace(/[^\w]/g, '');
+    }
+
+    function clamp(val, min = -1, max = 1) {
+      return Math.max(min, Math.min(max, val));
+    }
+
+    function morphologicalEmbed(clean) {
+      if (!clean || clean.length === 0) {
+        return { x: 0, y: 0, z: 0, w: 0, category: 'unknown' };
+      }
+      if (LEXICON[clean]) {
+        const l = LEXICON[clean];
+        return { x: l.x, y: l.y, z: l.z, w: l.w, category: l.cat };
+      }
+
+      let base = clean;
+      let deltaX = 0, deltaY = 0, deltaZ = 0, deltaW = 0;
+      let detectedCategory = 'general';
+
+      for (const p of PREFIXES) {
+        if (base.startsWith(p.prefix) && base.length > p.prefix.length + 2) {
+          base = base.slice(p.prefix.length);
+          deltaX += p.dx; deltaY += p.dy; deltaZ += p.dz; deltaW += p.dw;
+          break;
+        }
+      }
+
+      if (LEXICON[base]) {
+        const l = LEXICON[base];
+        return {
+          x: clamp(l.x + deltaX),
+          y: clamp(l.y + deltaY),
+          z: clamp(l.z + deltaZ),
+          w: clamp(l.w + deltaW, 0, 1),
+          category: l.cat
+        };
+      }
+
+      for (const s of SUFFIXES) {
+        if (base.endsWith(s.suffix) && base.length > s.suffix.length + 2) {
+          const candidate = base.slice(0, -s.suffix.length);
+          if (LEXICON[candidate]) {
+            const l = LEXICON[candidate];
+            return {
+              x: clamp(l.x + deltaX + s.dx),
+              y: clamp(l.y + deltaY + s.dy),
+              z: clamp(l.z + deltaZ + s.dz),
+              w: clamp(l.w + deltaW + s.dw, 0, 1),
+              category: l.cat
+            };
+          }
+          if (LEXICON[candidate + 'e']) {
+            const l = LEXICON[candidate + 'e'];
+            return {
+              x: clamp(l.x + deltaX + s.dx),
+              y: clamp(l.y + deltaY + s.dy),
+              z: clamp(l.z + deltaZ + s.dz),
+              w: clamp(l.w + deltaW + s.dw, 0, 1),
+              category: l.cat
+            };
+          }
+          base = candidate;
+          deltaX += s.dx; deltaY += s.dy; deltaZ += s.dz; deltaW += s.dw;
+          break;
+        }
+      }
+
+      let bestAnchor = null;
+      let bestAnchorLen = 0;
+      for (const anchor of Object.keys(LEXICON)) {
+        if (anchor.length >= 3 && clean.includes(anchor)) {
+          if (anchor.length > bestAnchorLen) {
+            bestAnchor = anchor;
+            bestAnchorLen = anchor.length;
+          }
+        }
+      }
+
+      if (bestAnchor && LEXICON[bestAnchor]) {
+        const l = LEXICON[bestAnchor];
+        return {
+          x: clamp(l.x * 0.85 + deltaX),
+          y: clamp(l.y * 0.85 + deltaY),
+          z: clamp(l.z * 0.85 + deltaZ),
+          w: clamp(l.w * 0.85 + deltaW, 0, 1),
+          category: l.cat
+        };
+      }
+
+      let hash = 0;
+      for (let i = 0; i < clean.length; i++) {
+        hash = (hash * 31 + clean.charCodeAt(i)) & 0xffffffff;
+      }
+      const f1 = ((hash & 0xff) / 255) * 2 - 1;
+      const f2 = (((hash >> 8) & 0xff) / 255) * 2 - 1;
+      const f3 = (((hash >> 16) & 0xff) / 255) * 2 - 1;
+      const f4 = ((hash >> 24) & 0xff) / 255;
+
+      return {
+        x: clamp(f1 * 0.4 + deltaX),
+        y: clamp(f2 * 0.4 + deltaY),
+        z: clamp(f3 * 0.4 + deltaZ),
+        w: clamp(f4 * 0.4 + deltaW, 0, 1),
+        category: detectedCategory
+      };
+    }
+
+    function embedToken(rawToken, contextWord = null) {
+      const tokenStr = rawToken !== undefined && rawToken !== null ? String(rawToken) : '';
+      const clean = sanitizeToken(tokenStr);
+      const cleanContext = sanitizeToken(contextWord);
+
+      let targetWord = clean;
+      if (clean.length <= 2 && cleanContext && cleanContext.length > 2 && !LEXICON[clean]) {
+        targetWord = cleanContext;
+      }
+
+      const isStopword = STOPWORDS.has(targetWord) || STOPWORDS.has(clean);
+      const coords = morphologicalEmbed(targetWord);
+      const magnitudeMultiplier = isStopword ? 0.35 : 1.0;
+      const x = Number((coords.x * magnitudeMultiplier).toFixed(3));
+      const y = Number((coords.y * magnitudeMultiplier).toFixed(3));
+      const z = Number((coords.z * magnitudeMultiplier).toFixed(3));
+      const w = Number((coords.w * magnitudeMultiplier).toFixed(3));
+      const norm = Number(Math.sqrt(x * x + y * y + z * z).toFixed(3));
+
+      return {
+        token: tokenStr,
+        clean: clean || tokenStr,
+        word: contextWord || tokenStr,
+        x,
+        y,
+        z,
+        w,
+        norm: norm > 0 ? norm : 0.001,
+        category: coords.category,
+        isStopword,
+        dimensions: {
+          concreteness_tech: x,
+          nature_digital: y,
+          sentiment_valence: z,
+          agency_dynamism: w
+        }
+      };
+    }
+
+    function cosineSim3D(v1, v2) {
+      if (!v1 || !v2) return 0;
+      const dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+      const norm1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z);
+      const norm2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);
+      if (norm1 === 0 || norm2 === 0) return 0;
+      const sim = dot / (norm1 * norm2);
+      return Number(Math.max(-1, Math.min(1, sim)).toFixed(3));
+    }
+
+    /* ==========================================================================
+       2. BPE TOKENIZATION ENGINE
+       ========================================================================== */
+    function preTokenize(text) {
+      if (!text) return [];
+      return text.match(/\b\w+\b|[^\s\w]/g) || [];
+    }
+
+    function runBPESimulation(rawText, maxMerges = 32) {
+      const words = preTokenize(rawText);
+      if (words.length === 0) {
+        return { steps: [], mergeRules: [], vocabMap: {}, initialVocab: [] };
+      }
+
+      const wordFreqs = new Map();
+      for (let i = 0; i < words.length; i++) {
+        const w = words[i];
+        const key = (i === 0 ? '' : '▁') + w;
+        wordFreqs.set(key, (wordFreqs.get(key) || 0) + 1);
+      }
+
+      let corpusWords = [];
+      const baseVocabSet = new Set();
+      for (const [word, freq] of wordFreqs.entries()) {
+        const chars = Array.from(word);
+        chars.forEach(c => baseVocabSet.add(c));
+        corpusWords.push({ chars, freq, original: word });
+      }
+
+      const baseVocab = Array.from(baseVocabSet).sort();
+      const vocabMap = {};
+      baseVocab.forEach((t, idx) => { vocabMap[t] = idx; });
+
+      const steps = [];
+      const mergeRules = [];
+
+      function calculateStats(currentWords, currentVocabSize) {
+        let totalChars = 0;
+        let totalTokens = 0;
+        for (const item of currentWords) {
+          totalChars += item.original.length * item.freq;
+          totalTokens += item.chars.length * item.freq;
+        }
+        const ratio = totalTokens > 0 ? (totalChars / totalTokens).toFixed(2) : '1.00';
+        return {
+          charCount: totalChars,
+          tokenCount: totalTokens,
+          vocabSize: currentVocabSize,
+          compressionRatio: ratio
+        };
+      }
+
+      steps.push({
+        step: 0,
+        mergedPair: null,
+        pairFreq: 0,
+        vocabList: [...baseVocab],
+        vocabMap: { ...vocabMap },
+        wordTokens: corpusWords.map(w => ({ word: w.original, tokens: [...w.chars], freq: w.freq })),
+        stats: calculateStats(corpusWords, Object.keys(vocabMap).length)
+      });
+
+      for (let step = 1; step <= maxMerges; step++) {
+        const pairFreqs = new Map();
+        for (const item of corpusWords) {
+          const { chars, freq } = item;
+          for (let i = 0; i < chars.length - 1; i++) {
+            const pairKey = chars[i] + '|||' + chars[i + 1];
+            pairFreqs.set(pairKey, (pairFreqs.get(pairKey) || 0) + freq);
+          }
+        }
+        if (pairFreqs.size === 0) break;
+
+        let bestPair = null;
+        let maxFreq = -1;
+        for (const [pairKey, freq] of pairFreqs.entries()) {
+          if (freq > maxFreq || (freq === maxFreq && bestPair && pairKey < bestPair)) {
+            maxFreq = freq;
+            bestPair = pairKey;
+          }
+        }
+        if (maxFreq < 1 || !bestPair) break;
+
+        const [left, right] = bestPair.split('|||');
+        const merged = left + right;
+        const newId = Object.keys(vocabMap).length;
+        vocabMap[merged] = newId;
+
+        const rule = { left, right, merged, freq: maxFreq, id: newId };
+        mergeRules.push(rule);
+
+        const updatedCorpus = [];
+        for (const item of corpusWords) {
+          const oldChars = item.chars;
+          const newChars = [];
+          let i = 0;
+          while (i < oldChars.length) {
+            if (i < oldChars.length - 1 && oldChars[i] === left && oldChars[i + 1] === right) {
+              newChars.push(merged);
+              i += 2;
+            } else {
+              newChars.push(oldChars[i]);
+              i++;
+            }
+          }
+          updatedCorpus.push({ chars: newChars, freq: item.freq, original: item.original });
+        }
+        corpusWords = updatedCorpus;
+
+        steps.push({
+          step,
+          mergedPair: { left, right, merged, freq: maxFreq },
+          vocabList: Object.keys(vocabMap),
+          vocabMap: { ...vocabMap },
+          wordTokens: corpusWords.map(w => ({ word: w.original, tokens: [...w.chars], freq: w.freq })),
+          stats: calculateStats(corpusWords, Object.keys(vocabMap).length)
+        });
+      }
+
+      return { steps, mergeRules, vocabMap, initialVocab: baseVocab };
+    }
+
+    function encodeBPE(text, vocabMap = {}, mergeRules = []) {
+      if (!text || typeof text !== 'string') {
+        return { tokens: [], tokenCount: 0, rawTokens: [] };
+      }
+      const words = preTokenize(text);
+      const resultTokens = [];
+
+      for (let wIdx = 0; wIdx < words.length; wIdx++) {
+        const rawWord = words[wIdx];
+        const prefix = wIdx === 0 ? '' : '▁';
+        let currentTokens = Array.from(prefix + rawWord);
+
+        for (const rule of mergeRules) {
+          if (currentTokens.length < 2) break;
+          const nextTokens = [];
+          let i = 0;
+          while (i < currentTokens.length) {
+            if (i < currentTokens.length - 1 && currentTokens[i] === rule.left && currentTokens[i + 1] === rule.right) {
+              nextTokens.push(rule.merged);
+              i += 2;
+            } else {
+              nextTokens.push(currentTokens[i]);
+              i++;
+            }
+          }
+          currentTokens = nextTokens;
+        }
+
+        for (const tok of currentTokens) {
+          const clean = tok.replace(/^▁/, '');
+          const id = vocabMap[tok] !== undefined ? vocabMap[tok] : (vocabMap[clean] !== undefined ? vocabMap[clean] : -1);
+          resultTokens.push({
+            token: tok,
+            clean: clean || tok,
+            word: rawWord,
+            id: id,
+            isBase: tok.length === 1 && !tok.startsWith('▁'),
+            hasPrefix: tok.startsWith('▁')
+          });
+        }
+      }
+
+      return {
+        tokens: resultTokens,
+        tokenCount: resultTokens.length,
+        rawTokens: resultTokens.map(t => t.clean)
+      };
+    }
+
+    /* ==========================================================================
+       3. COMPARISON & SIMILARITY SUITE
+       ========================================================================== */
+    function computeCentroid(embeddedTokens) {
+      if (!embeddedTokens || embeddedTokens.length === 0) {
+        return { x: 0, y: 0, z: 0, norm: 0 };
+      }
+      let totalWeight = 0;
+      let sumX = 0, sumY = 0, sumZ = 0;
+
+      for (const t of embeddedTokens) {
+        const weight = t.isStopword ? 0.2 : 1.0;
+        sumX += t.x * weight;
+        sumY += t.y * weight;
+        sumZ += t.z * weight;
+        totalWeight += weight;
+      }
+      if (totalWeight === 0) totalWeight = 1;
+
+      const cx = Number((sumX / totalWeight).toFixed(3));
+      const cy = Number((sumY / totalWeight).toFixed(3));
+      const cz = Number((sumZ / totalWeight).toFixed(3));
+      const norm = Number(Math.sqrt(cx * cx + cy * cy + cz * cz).toFixed(3));
+      return { x: cx, y: cy, z: cz, norm: norm > 0 ? norm : 0.001 };
+    }
+
+    function computeSoftAlignment(tokensA, tokensB, matrix) {
+      if (!tokensA.length || !tokensB.length) return 0;
+      const contentA = tokensA.map((t, idx) => ({ t, idx })).filter(item => !item.t.isStopword);
+      const activeA = contentA.length > 0 ? contentA : tokensA.map((t, idx) => ({ t, idx }));
+
+      const contentB = tokensB.map((t, idx) => ({ t, idx })).filter(item => !item.t.isStopword);
+      const activeB = contentB.length > 0 ? contentB : tokensB.map((t, idx) => ({ t, idx }));
+
+      let sumMaxA = 0;
+      for (const itemA of activeA) {
+        let maxSim = -1;
+        for (const itemB of activeB) {
+          const sim = matrix[itemA.idx][itemB.idx];
+          if (sim > maxSim) maxSim = sim;
+        }
+        sumMaxA += Math.max(0, maxSim);
+      }
+      const meanMaxA = sumMaxA / activeA.length;
+
+      let sumMaxB = 0;
+      for (const itemB of activeB) {
+        let maxSim = -1;
+        for (const itemA of activeA) {
+          const sim = matrix[itemA.idx][itemB.idx];
+          if (sim > maxSim) maxSim = sim;
+        }
+        sumMaxB += Math.max(0, maxSim);
+      }
+      const meanMaxB = sumMaxB / activeB.length;
+      return Math.max(0, Math.min(1, Number(((meanMaxA + meanMaxB) / 2).toFixed(3))));
+    }
+
+    function getSemanticVerdict(score) {
+      if (score >= 0.88) {
+        return {
+          label: "Semantic Paraphrase / Near Equivalent",
+          tag: "Paraphrase",
+          color: "#16a34a",
+          bg: "#dcfce7",
+          desc: "Sentences share nearly identical semantic structure, entity roles, and valence."
+        };
+      } else if (score >= 0.70) {
+        return {
+          label: "Strong Domain & Conceptual Overlap",
+          tag: "Strong Match",
+          color: "#0d9488",
+          bg: "#ccfbf1",
+          desc: "Sentences refer to the same conceptual field with aligned subjects and sentiment."
+        };
+      } else if (score >= 0.45) {
+        return {
+          label: "Moderate Topical Relation",
+          tag: "Moderate",
+          color: "#d97706",
+          bg: "#fef3c7",
+          desc: "Sentences share some thematic anchors or emotional valence, but diverge in focus."
+        };
+      } else if (score >= 0.20) {
+        return {
+          label: "Weak / Tangential Connection",
+          tag: "Weak",
+          color: "#ea580c",
+          bg: "#ffedd5",
+          desc: "Minimal semantic overlap with differing domain categories and entities."
+        };
+      } else {
+        return {
+          label: "Contrasting / Orthogonal Concepts",
+          tag: "Orthogonal",
+          color: "#e11d48",
+          bg: "#ffe4e6",
+          desc: "Sentences occupy opposite or unrelated semantic regions across multiple axes."
+        };
+      }
+    }
+
+    function computeComparison(textA, textB, bpeVocab = null, mergeRules = null) {
+      let rawA = [];
+      let rawB = [];
+      if (bpeVocab && mergeRules && mergeRules.length > 0) {
+        const encA = encodeBPE(textA, bpeVocab, mergeRules);
+        const encB = encodeBPE(textB, bpeVocab, mergeRules);
+        rawA = encA.tokens;
+        rawB = encB.tokens;
+      } else {
+        rawA = preTokenize(textA).map(t => ({ token: t, clean: t, word: t }));
+        rawB = preTokenize(textB).map(t => ({ token: t, clean: t, word: t }));
+      }
+
+      const toksA = rawA.map((t, idx) => ({ ...embedToken(t.clean, t.word), sentence: 'A', index: idx }));
+      const toksB = rawB.map((t, idx) => ({ ...embedToken(t.clean, t.word), sentence: 'B', index: idx }));
+
+      const matrix = [];
+      const pairCandidates = [];
+
+      for (let i = 0; i < toksA.length; i++) {
+        const row = [];
+        for (let j = 0; j < toksB.length; j++) {
+          const sim = cosineSim3D(toksA[i], toksB[j]);
+          row.push(sim);
+
+          if (!toksA[i].isStopword || !toksB[j].isStopword) {
+            pairCandidates.push({
+              tokenA: toksA[i].clean,
+              tokenB: toksB[j].clean,
+              idxA: i,
+              idxB: j,
+              score: sim
+            });
+          }
+        }
+        matrix.push(row);
+      }
+
+      const centroidA = computeCentroid(toksA);
+      const centroidB = computeCentroid(toksB);
+      const cosCentroid = Number(cosineSim3D(centroidA, centroidB).toFixed(3));
+      const softAlignment = computeSoftAlignment(toksA, toksB, matrix);
+      const rawComposite = 0.45 * Math.max(0, cosCentroid) + 0.55 * Math.max(0, softAlignment);
+      const compositeScore = Number(rawComposite.toFixed(3));
+      const verdict = getSemanticVerdict(compositeScore);
+
+      pairCandidates.sort((a, b) => b.score - a.score);
+      const seenA = new Set();
+      const seenB = new Set();
+      const topPairs = [];
+
+      for (const pair of pairCandidates) {
+        if (!seenA.has(pair.idxA) && !seenB.has(pair.idxB)) {
+          seenA.add(pair.idxA);
+          seenB.add(pair.idxB);
+          topPairs.push(pair);
+          if (topPairs.length >= 6) break;
+        }
+      }
+
+      return {
+        toksA,
+        toksB,
+        centroidA,
+        centroidB,
+        cosCentroid,
+        softAlignment,
+        compositeScore,
+        verdict,
+        topPairs,
+        matrix
+      };
+    }
+
+    /* ==========================================================================
+       4. APPLICATION STATE & ORCHESTRATION
+       ========================================================================== */
+    const state = {
+      bpeSimulation: null,
+      currentMergeStep: 24,
+      bpePlayInterval: null,
+      comparison: null,
+      probeToken: "kitten",
+      clusterCohesion: 1.0,
+      linkThreshold: 0.65,
+      autoOrbit: true,
+      selectedNode: null,
+      hoveredPair: null,
+      camera: {
+        yaw: 0.8,
+        pitch: 0.45,
+        distance: 4.8,
+        panX: 0,
+        panY: 0
+      }
+    };
+
+    /* Presets Data */
+    const PRESETS = {
+      "synonyms": {
+        corpus: "The happy cat sat on the warm mat. A joyful kitten rested on the soft rug. The playful puppy jumped on the green grass.",
+        sentA: "The happy cat sat on the warm mat",
+        sentB: "A joyful kitten rested on the soft rug",
+        probe: "kitten"
+      },
+      "opposites": {
+        corpus: "The happy cat sat on the warm mat. The database server crashed with critical error code 500.",
+        sentA: "The happy cat sat on the warm mat",
+        sentB: "The server crashed with critical database errors",
+        probe: "server"
+      },
+      "royalty": {
+        corpus: "The wise king ruled the peaceful land with honour. The noble queen governed the serene kingdom with grace.",
+        sentA: "The wise king ruled the peaceful land",
+        sentB: "The noble queen governed the serene kingdom",
+        probe: "queen"
+      },
+      "tech-nature": {
+        corpus: "Deep neural networks process matrix tensors in silicon clusters. Wild rivers flow through the ancient green forest.",
+        sentA: "Neural networks process matrix tensors",
+        sentB: "Wild rivers flow through the ancient forest",
+        probe: "tensor"
+      }
+    };
+
+    /* ==========================================================================
+       5. 3D CANVAS RENDERING ENGINE
+       ========================================================================== */
+    const canvas = document.getElementById('canvas-3d');
+    const ctx = canvas.getContext('2d');
+    let animationFrameId = null;
+
+    function resizeCanvas() {
+      const container = document.getElementById('canvas-container');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function project3D(x, y, z, width, height) {
+      // Rotate around Y axis (Yaw)
+      const cosY = Math.cos(state.camera.yaw);
+      const sinY = Math.sin(state.camera.yaw);
+      const x1 = x * cosY - z * sinY;
+      const z1 = z * cosY + x * sinY;
+
+      // Rotate around X axis (Pitch)
+      const cosP = Math.cos(state.camera.pitch);
+      const sinP = Math.sin(state.camera.pitch);
+      const y2 = y * cosP - z1 * sinP;
+      const z2 = z1 * cosP + y * sinP;
+
+      // Perspective projection
+      const fov = 650;
+      const cameraZ = state.camera.distance;
+      const zEff = z2 + cameraZ;
+
+      if (zEff <= 0.2) return null; // Behind camera
+
+      const scale = fov / zEff;
+      const screenX = (width / 2) + (x1 + state.camera.panX) * scale;
+      const screenY = (height / 2) - (y2 + state.camera.panY) * scale;
+
+      return { x: screenX, y: screenY, scale, depth: z2 };
+    }
+
+    function render3DScene() {
+      const width = canvas.width / (window.devicePixelRatio || 1);
+      const height = canvas.height / (window.devicePixelRatio || 1);
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Smooth auto-orbit rotation
+      if (state.autoOrbit) {
+        state.camera.yaw += 0.0035;
+      }
+
+      // 1. Draw Grid Base in 3D
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+      const gridSize = 1.6;
+      const gridSteps = 8;
+      const stepSize = (gridSize * 2) / gridSteps;
+
+      for (let i = 0; i <= gridSteps; i++) {
+        const p = -gridSize + i * stepSize;
+        const p1 = project3D(p, -1.2, -gridSize, width, height);
+        const p2 = project3D(p, -1.2, gridSize, width, height);
+        if (p1 && p2) {
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+
+        const p3 = project3D(-gridSize, -1.2, p, width, height);
+        const p4 = project3D(gridSize, -1.2, p, width, height);
+        if (p3 && p4) {
+          ctx.beginPath();
+          ctx.moveTo(p3.x, p3.y);
+          ctx.lineTo(p4.x, p4.y);
+          ctx.stroke();
+        }
+      }
+
+      // 2. Draw Semantic Axis Lines with Labels
+      const axes = [
+        { name: "X (Domain)", from: [-1.4, 0, 0], to: [1.4, 0, 0], color: "#ef4444", neg: "Domestic", pos: "Tech" },
+        { name: "Y (Origin)", from: [0, -1.4, 0], to: [0, 1.4, 0], color: "#22c55e", neg: "Nature", pos: "Machine" },
+        { name: "Z (Valence)", from: [0, 0, -1.4], to: [0, 0, 1.4], color: "#a855f7", neg: "-Valence", pos: "+Valence" }
+      ];
+
+      for (const axis of axes) {
+        const start = project3D(axis.from[0], axis.from[1], axis.from[2], width, height);
+        const end = project3D(axis.to[0], axis.to[1], axis.to[2], width, height);
+        if (start && end) {
+          ctx.strokeStyle = axis.color;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(start.x, start.y);
+          ctx.lineTo(end.x, end.y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Endcap labels
+          ctx.font = "10px ui-monospace, monospace";
+          ctx.fillStyle = axis.color;
+          ctx.fillText(axis.pos, end.x + 6, end.y + 4);
+          ctx.fillText(axis.neg, start.x - 30, start.y + 4);
+        }
+      }
+
+      // 3. Prepare Nodes to Render
+      const comp = state.comparison;
+      if (!comp) return;
+
+      const renderObjects = [];
+      const cohesion = state.clusterCohesion;
+
+      // Sentence A Centroid
+      const cA = comp.centroidA;
+      const cAPos = { x: cA.x * cohesion, y: cA.y * cohesion, z: cA.z * cohesion };
+      const projCA = project3D(cAPos.x, cAPos.y, cAPos.z, width, height);
+      if (projCA) {
+        renderObjects.push({
+          type: 'centroid',
+          label: 'Centroid A',
+          screen: projCA,
+          color: '#60a5fa',
+          size: 9
+        });
+      }
+
+      // Sentence B Centroid
+      const cB = comp.centroidB;
+      const cBPos = { x: cB.x * cohesion, y: cB.y * cohesion, z: cB.z * cohesion };
+      const projCB = project3D(cBPos.x, cBPos.y, cBPos.z, width, height);
+      if (projCB) {
+        renderObjects.push({
+          type: 'centroid',
+          label: 'Centroid B',
+          screen: projCB,
+          color: '#fb7185',
+          size: 9
+        });
+      }
+
+      // Sentence A Tokens
+      comp.toksA.forEach((tok, idx) => {
+        const x = tok.x * cohesion;
+        const y = tok.y * cohesion;
+        const z = tok.z * cohesion;
+        const p = project3D(x, y, z, width, height);
+        if (p) {
+          renderObjects.push({
+            type: 'node',
+            token: tok,
+            sentence: 'A',
+            screen: p,
+            color: '#3b82f6',
+            pos3D: { x, y, z }
+          });
+        }
+      });
+
+      // Sentence B Tokens
+      comp.toksB.forEach((tok, idx) => {
+        const x = tok.x * cohesion;
+        const y = tok.y * cohesion;
+        const z = tok.z * cohesion;
+        const p = project3D(x, y, z, width, height);
+        if (p) {
+          renderObjects.push({
+            type: 'node',
+            token: tok,
+            sentence: 'B',
+            screen: p,
+            color: '#f43f5e',
+            pos3D: { x, y, z }
+          });
+        }
+      });
+
+      // Custom Probe Node
+      if (state.probeToken) {
+        const pTok = embedToken(state.probeToken);
+        const x = pTok.x * cohesion;
+        const y = pTok.y * cohesion;
+        const z = pTok.z * cohesion;
+        const p = project3D(x, y, z, width, height);
+        if (p) {
+          renderObjects.push({
+            type: 'node',
+            token: pTok,
+            sentence: 'Probe',
+            screen: p,
+            color: '#f59e0b',
+            pos3D: { x, y, z }
+          });
+        }
+      }
+
+      // 4. Draw Connecting Similarity Bonds (Threshold > slider value)
+      const threshold = state.linkThreshold;
+      for (let i = 0; i < comp.toksA.length; i++) {
+        for (let j = 0; j < comp.toksB.length; j++) {
+          const sim = comp.matrix[i][j];
+          const isHovered = state.hoveredPair && state.hoveredPair.idxA === i && state.hoveredPair.idxB === j;
+          if (sim >= threshold || isHovered) {
+            const tokA = comp.toksA[i];
+            const tokB = comp.toksB[j];
+            const p1 = project3D(tokA.x * cohesion, tokA.y * cohesion, tokA.z * cohesion, width, height);
+            const p2 = project3D(tokB.x * cohesion, tokB.y * cohesion, tokB.z * cohesion, width, height);
+            if (p1 && p2) {
+              ctx.lineWidth = isHovered ? 3 : (sim * 2.2);
+              ctx.strokeStyle = isHovered ? '#38bdf8' : `rgba(56, 189, 248, ${Math.min(1, sim * 0.85)})`;
+              ctx.setLineDash(isHovered ? [] : [3, 3]);
+              ctx.beginPath();
+              ctx.moveTo(p1.x, p1.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            }
+          }
+        }
+      }
+
+      // 5. Sort objects by depth (Painter's Algorithm)
+      renderObjects.sort((a, b) => b.screen.depth - a.screen.depth);
+
+      // 6. Draw Nodes & Labels
+      for (const obj of renderObjects) {
+        if (obj.type === 'centroid') {
+          // Draw diamond glyph
+          const { x, y, scale } = obj.screen;
+          const s = obj.size * (scale / 400);
+          ctx.fillStyle = obj.color;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s);
+          ctx.lineTo(x + s, y);
+          ctx.lineTo(x, y + s);
+          ctx.lineTo(x - s, y);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          ctx.font = "bold 11px ui-monospace, monospace";
+          ctx.fillStyle = obj.color;
+          ctx.fillText(obj.label, x + s + 4, y + 4);
+        } else if (obj.type === 'node') {
+          const { x, y, scale } = obj.screen;
+          const radius = Math.max(4, Math.min(14, 6 * (scale / 320)));
+          const isSelected = state.selectedNode && state.selectedNode.clean === obj.token.clean;
+
+          // Sphere Glow / Selection ring
+          if (isSelected) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 5, 0, Math.PI * 2);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+          }
+
+          // Shaded sphere
+          const grad = ctx.createRadialGradient(x - radius * 0.3, y - radius * 0.3, radius * 0.1, x, y, radius);
+          grad.addColorStop(0, '#ffffff');
+          grad.addColorStop(0.3, obj.color);
+          grad.addColorStop(1, '#0f172a');
+
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          // Token label
+          ctx.font = `${Math.max(10, Math.min(13, Math.round(scale / 35)))}px ui-monospace, monospace`;
+          ctx.fillStyle = isSelected ? '#38bdf8' : 'rgba(255, 255, 255, 0.9)';
+          ctx.fillText(obj.token.clean, x + radius + 4, y + 4);
+        }
+      }
+    }
+
+    function animate() {
+      render3DScene();
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    /* Orbit Interaction Mouse / Touch Handlers */
+    let isDragging = false;
+    let isPanning = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button === 2 || e.shiftKey) {
+        isPanning = true;
+      } else {
+        isDragging = true;
+      }
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+      state.autoOrbit = false;
+      document.getElementById('orbit-indicator').style.background = '#64748b';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging && !isPanning) return;
+      const dx = e.clientX - lastMouseX;
+      const dy = e.clientY - lastMouseY;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+
+      if (isDragging) {
+        state.camera.yaw += dx * 0.007;
+        state.camera.pitch = Math.max(-1.4, Math.min(1.4, state.camera.pitch + dy * 0.007));
+      } else if (isPanning) {
+        state.camera.panX += dx * 0.005;
+        state.camera.panY += dy * 0.005;
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+      isPanning = false;
+    });
+
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      state.camera.distance = Math.max(1.8, Math.min(10.0, state.camera.distance + e.deltaY * 0.004));
+    }, { passive: false });
+
+    // Node click inspector in 3D canvas
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      const width = canvas.width / (window.devicePixelRatio || 1);
+      const height = canvas.height / (window.devicePixelRatio || 1);
+
+      const comp = state.comparison;
+      if (!comp) return;
+
+      const allToks = [...comp.toksA, ...comp.toksB];
+      if (state.probeToken) allToks.push(embedToken(state.probeToken));
+
+      let closest = null;
+      let minDst = 20;
+
+      for (const tok of allToks) {
+        const p = project3D(tok.x * state.clusterCohesion, tok.y * state.clusterCohesion, tok.z * state.clusterCohesion, width, height);
+        if (p) {
+          const d = Math.hypot(p.x - clickX, p.y - clickY);
+          if (d < minDst) {
+            minDst = d;
+            closest = tok;
+          }
+        }
+      }
+
+      if (closest) {
+        selectAndInspectToken(closest);
+      }
+    });
+
+    /* ==========================================================================
+       6. UI RENDERING & STAGE UPDATES
+       ========================================================================== */
+    function selectAndInspectToken(tokenObj) {
+      state.selectedNode = tokenObj;
+
+      // Update Stage 2 Inspector
+      document.getElementById('probe-token-display').textContent = `"${tokenObj.clean}"`;
+      document.getElementById('probe-category-display').textContent = tokenObj.category || 'general';
+      document.getElementById('probe-norm-val').textContent = tokenObj.norm.toFixed(3);
+      document.getElementById('probe-stopword-val').textContent = tokenObj.isStopword ? 'Yes (Downweighted)' : 'No';
+
+      document.getElementById('probe-x-val').textContent = (tokenObj.x >= 0 ? '+' : '') + tokenObj.x.toFixed(3);
+      document.getElementById('probe-y-val').textContent = (tokenObj.y >= 0 ? '+' : '') + tokenObj.y.toFixed(3);
+      document.getElementById('probe-z-val').textContent = (tokenObj.z >= 0 ? '+' : '') + tokenObj.z.toFixed(3);
+      document.getElementById('probe-w-val').textContent = (tokenObj.w >= 0 ? '+' : '') + tokenObj.w.toFixed(3);
+
+      // Visual percentage fills (-1..1 to 0..100%)
+      const xPct = Math.max(0, Math.min(100, ((tokenObj.x + 1) / 2) * 100));
+      const yPct = Math.max(0, Math.min(100, ((tokenObj.y + 1) / 2) * 100));
+      const zPct = Math.max(0, Math.min(100, ((tokenObj.z + 1) / 2) * 100));
+      const wPct = Math.max(0, Math.min(100, tokenObj.w * 100));
+
+      document.getElementById('probe-x-fill').style.left = `${Math.min(50, xPct)}%`;
+      document.getElementById('probe-x-fill').style.width = `${Math.abs(xPct - 50)}%`;
+
+      document.getElementById('probe-y-fill').style.left = `${Math.min(50, yPct)}%`;
+      document.getElementById('probe-y-fill').style.width = `${Math.abs(yPct - 50)}%`;
+
+      document.getElementById('probe-z-fill').style.left = `${Math.min(50, zPct)}%`;
+      document.getElementById('probe-z-fill').style.width = `${Math.abs(zPct - 50)}%`;
+
+      document.getElementById('probe-w-fill').style.left = '0';
+      document.getElementById('probe-w-fill').style.width = `${wPct}%`;
+
+      // Update 3D HUD
+      document.getElementById('hud-token-name').textContent = `Token: "${tokenObj.clean}"`;
+      document.getElementById('hud-origin-tag').textContent = `Origin: ${tokenObj.sentence ? 'Sentence ' + tokenObj.sentence : 'Custom Probe'} · Cat: ${tokenObj.category}`;
+      document.getElementById('hud-coords').textContent = `X: ${tokenObj.x} · Y: ${tokenObj.y} · Z: ${tokenObj.z} · Norm: ${tokenObj.norm}`;
+
+      // Nearest neighbors
+      if (state.comparison) {
+        const pool = [...state.comparison.toksA, ...state.comparison.toksB];
+        const scored = pool
+          .filter(t => t.clean !== tokenObj.clean)
+          .map(t => ({ token: t.clean, sim: cosineSim3D(tokenObj, t) }))
+          .sort((a, b) => b.sim - a.sim)
+          .slice(0, 3);
+
+        const nStr = scored.map(s => `${s.token} (${s.sim})`).join(', ');
+        document.getElementById('hud-neighbors').textContent = `Nearest: ${nStr || 'None'}`;
+      }
+    }
+
+    function renderStage1Tokenizer() {
+      const bpe = state.bpeSimulation;
+      if (!bpe || bpe.steps.length === 0) return;
+
+      const stepIdx = Math.min(state.currentMergeStep, bpe.steps.length - 1);
+      const stepData = bpe.steps[stepIdx];
+
+      // Update Stats
+      document.getElementById('stat-char-count').textContent = stepData.stats.charCount;
+      document.getElementById('stat-token-count').textContent = stepData.stats.tokenCount;
+      document.getElementById('stat-vocab-size').textContent = stepData.stats.vocabSize;
+      document.getElementById('stat-compression-ratio').textContent = `${stepData.stats.compressionRatio}×`;
+
+      document.getElementById('bpe-step-slider').max = bpe.steps.length - 1;
+      document.getElementById('bpe-step-slider').value = stepIdx;
+      document.getElementById('bpe-step-val').textContent = `Step ${stepIdx} / ${bpe.steps.length - 1}`;
+
+      // Update Stage 1 Header summary badge
+      document.getElementById('s1-summary').textContent = `Tokens: ${stepData.stats.tokenCount} · Vocab: ${stepData.stats.vocabSize} · Ratio: ${stepData.stats.compressionRatio}×`;
+      document.getElementById('rail-s1-badge').textContent = `Vocab: ${stepData.stats.vocabSize}`;
+
+      // Active Tokenizer Test Field Evaluation
+      const testInput = document.getElementById('bpe-test-input').value;
+      const activeMerges = bpe.mergeRules.slice(0, stepIdx);
+      const encoded = encodeBPE(testInput, stepData.vocabMap, activeMerges);
+
+      document.getElementById('token-test-count').textContent = `${encoded.tokenCount} tokens`;
+      const streamContainer = document.getElementById('token-stream-display');
+      streamContainer.innerHTML = '';
+
+      encoded.tokens.forEach(tok => {
+        const chip = document.createElement('div');
+        chip.className = 'token-chip';
+        chip.innerHTML = `
+          ${tok.hasPrefix ? '<span class="prefix-mark">▁</span>' : ''}
+          <span>${tok.clean}</span>
+          <span class="tok-id">#${tok.id !== -1 ? tok.id : '?'}</span>
+        `;
+        streamContainer.appendChild(chip);
+      });
+
+      // Render Learned Vocabulary Table
+      document.getElementById('vocab-table-count').textContent = `${stepData.vocabList.length} items`;
+      const vocabTbody = document.getElementById('vocab-table-body');
+      vocabTbody.innerHTML = '';
+
+      stepData.vocabList.forEach((tok, id) => {
+        const tr = document.createElement('tr');
+        const isBase = tok.length === 1 && !tok.startsWith('▁');
+        tr.innerHTML = `
+          <td style="font-weight: 600; color: ${isBase ? 'var(--text-main)' : 'var(--accent-s1)'};">${tok}</td>
+          <td>${id}</td>
+          <td><span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: ${isBase ? 'var(--bg-card-alt)' : 'var(--accent-s1-light)'};">${isBase ? 'Base Char' : 'Learned Merge'}</span></td>
+          <td>${tok.length}</td>
+        `;
+        vocabTbody.appendChild(tr);
+      });
+
+      // Render Merges Table
+      const mergesTbody = document.getElementById('merges-table-body');
+      mergesTbody.innerHTML = '';
+
+      for (let i = 0; i < stepIdx; i++) {
+        const rule = bpe.mergeRules[i];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>#${i + 1}</td>
+          <td>'${rule.left}' + '${rule.right}'</td>
+          <td style="font-weight: 700; color: var(--accent-s1);">'${rule.merged}'</td>
+          <td>${rule.freq}×</td>
+        `;
+        mergesTbody.appendChild(tr);
+      }
+    }
+
+    function renderStage2Embedder() {
+      // Re-inspect current probe
+      const pTok = embedToken(state.probeToken);
+      selectAndInspectToken(pTok);
+
+      // Populate tokens coordinates table
+      const tbody = document.getElementById('tokens-coords-tbody');
+      tbody.innerHTML = '';
+
+      if (state.comparison) {
+        const all = [
+          ...state.comparison.toksA.map(t => ({ ...t, src: 'A' })),
+          ...state.comparison.toksB.map(t => ({ ...t, src: 'B' }))
+        ];
+        if (state.probeToken) {
+          all.push({ ...embedToken(state.probeToken), src: 'Probe' });
+        }
+
+        all.forEach(tok => {
+          const tr = document.createElement('tr');
+          tr.style.cursor = 'pointer';
+          tr.innerHTML = `
+            <td><span style="font-size: 10px; font-weight: bold; color: ${tok.src === 'A' ? '#3b82f6' : (tok.src === 'B' ? '#f43f5e' : '#f59e0b')}">${tok.src}</span></td>
+            <td style="font-weight: 600;">${tok.clean}</td>
+            <td>${tok.x >= 0 ? '+' : ''}${tok.x.toFixed(2)}</td>
+            <td>${tok.y >= 0 ? '+' : ''}${tok.y.toFixed(2)}</td>
+            <td>${tok.z >= 0 ? '+' : ''}${tok.z.toFixed(2)}</td>
+            <td>${tok.norm.toFixed(2)}</td>
+            <td><span style="font-size: 10px; background: var(--bg-card-alt); padding: 2px 6px; border-radius: 4px;">${tok.category}</span></td>
+          `;
+          tr.addEventListener('click', () => {
+            selectAndInspectToken(tok);
+          });
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('s2-summary').textContent = `Active Tokens: ${all.length} · 4D Space`;
+      }
+    }
+
+    function renderStage3Comparison() {
+      const comp = state.comparison;
+      if (!comp) return;
+
+      // Update counters
+      document.getElementById('sent-a-token-badge').textContent = `${comp.toksA.length} tokens`;
+      document.getElementById('sent-b-token-badge').textContent = `${comp.toksB.length} tokens`;
+
+      // Update scorecards
+      const pct = (comp.compositeScore * 100).toFixed(1);
+      document.getElementById('sim-composite-score').textContent = `${pct}%`;
+      const verdict = comp.verdict;
+      const verdictBadge = document.getElementById('sim-verdict-tag');
+      verdictBadge.textContent = verdict.tag;
+      verdictBadge.style.color = verdict.color;
+      verdictBadge.style.background = verdict.bg;
+      document.getElementById('sim-verdict-desc').textContent = verdict.desc;
+
+      document.getElementById('metric-centroid-cos').textContent = comp.cosCentroid.toFixed(3);
+      document.getElementById('metric-soft-align').textContent = comp.softAlignment.toFixed(3);
+
+      // Summary chips
+      document.getElementById('s3-summary').textContent = `Cosine: ${comp.cosCentroid.toFixed(2)} · Alignment: ${comp.softAlignment.toFixed(2)} (${verdict.tag})`;
+      document.getElementById('rail-s3-badge').textContent = `Sim: ${pct}%`;
+
+      // Top Pairs
+      const pairsGrid = document.getElementById('top-pairs-container');
+      pairsGrid.innerHTML = '';
+      comp.topPairs.forEach(pair => {
+        const chip = document.createElement('div');
+        chip.className = 'pair-match-chip';
+        chip.innerHTML = `
+          <div class="pair-tokens">
+            <span style="color: #3b82f6;">${pair.tokenA}</span>
+            <span style="color: var(--text-dim);">↔</span>
+            <span style="color: #f43f5e;">${pair.tokenB}</span>
+          </div>
+          <span class="pair-score-badge">${pair.score.toFixed(2)}</span>
+        `;
+        chip.addEventListener('mouseenter', () => {
+          state.hoveredPair = pair;
+        });
+        chip.addEventListener('mouseleave', () => {
+          state.hoveredPair = null;
+        });
+        pairsGrid.appendChild(chip);
+      });
+
+      // Alignment Heatmap Matrix
+      const matrixTable = document.getElementById('alignment-matrix');
+      matrixTable.innerHTML = '';
+
+      // Header row
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML = '<th>A \\ B</th>';
+      comp.toksB.forEach(tB => {
+        const th = document.createElement('th');
+        th.textContent = tB.clean;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      matrixTable.appendChild(thead);
+
+      // Rows
+      const tbody = document.createElement('tbody');
+      comp.toksA.forEach((tA, i) => {
+        const tr = document.createElement('tr');
+        const rowLabel = document.createElement('th');
+        rowLabel.textContent = tA.clean;
+        tr.appendChild(rowLabel);
+
+        comp.toksB.forEach((tB, j) => {
+          const sim = comp.matrix[i][j];
+          const td = document.createElement('td');
+          td.className = 'cell-active';
+          td.textContent = sim.toFixed(2);
+
+          // Color scale
+          if (sim >= 0.75) {
+            td.style.background = '#dcfce7'; // green
+            td.style.color = '#15803d';
+            td.style.fontWeight = 'bold';
+          } else if (sim >= 0.40) {
+            td.style.background = '#fef3c7'; // yellow
+            td.style.color = '#b45309';
+          } else if (sim >= 0.0) {
+            td.style.background = '#f8fafc';
+            td.style.color = '#64748b';
+          } else {
+            td.style.background = '#ffe4e6'; // red
+            td.style.color = '#be123c';
+          }
+
+          td.addEventListener('mouseenter', () => {
+            state.hoveredPair = { idxA: i, idxB: j };
+          });
+          td.addEventListener('mouseleave', () => {
+            state.hoveredPair = null;
+          });
+          td.addEventListener('click', () => {
+            selectAndInspectToken(tA);
+          });
+
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      matrixTable.appendChild(tbody);
+    }
+
+    /* Full Pipeline Runner */
+    function runFullPipeline() {
+      // 1. Check auto-sync of sentences into corpus
+      const sentA = document.getElementById('sentence-a-input').value;
+      const sentB = document.getElementById('sentence-b-input').value;
+      const syncChecked = document.getElementById('sync-sentences-to-corpus').checked;
+
+      let corpus = document.getElementById('bpe-corpus-input').value;
+      if (syncChecked) {
+        if (!corpus.includes(sentA)) corpus += " " + sentA;
+        if (!corpus.includes(sentB)) corpus += " " + sentB;
+        document.getElementById('bpe-corpus-input').value = corpus.trim();
+      }
+
+      // 2. Train / Run BPE Simulation
+      state.bpeSimulation = runBPESimulation(corpus, 32);
+
+      // 3. Run Comparison with learned vocabulary and active rules
+      const finalStep = state.bpeSimulation.steps[Math.min(state.currentMergeStep, state.bpeSimulation.steps.length - 1)];
+      const activeRules = state.bpeSimulation.mergeRules.slice(0, state.currentMergeStep);
+
+      state.comparison = computeComparison(sentA, sentB, finalStep.vocabMap, activeRules);
+
+      // 4. Render All Stages
+      renderStage1Tokenizer();
+      renderStage2Embedder();
+      renderStage3Comparison();
+    }
+
+    /* ==========================================================================
+       7. EVENT LISTENERS & INTERACTION WIRING
+       ========================================================================== */
+    // Run Pipeline button
+    document.getElementById('btn-run-all').addEventListener('click', runFullPipeline);
+
+    // Retrain BPE
+    document.getElementById('btn-retrain-bpe').addEventListener('click', () => {
+      runFullPipeline();
+    });
+
+    // Slider for BPE step
+    document.getElementById('bpe-step-slider').addEventListener('input', (e) => {
+      state.currentMergeStep = parseInt(e.target.value, 10);
+      renderStage1Tokenizer();
+      renderStage2Embedder();
+      renderStage3Comparison();
+    });
+
+    // BPE Step Controls (Play, Back, Fwd, Reset)
+    document.getElementById('bpe-step-back').addEventListener('click', () => {
+      if (state.currentMergeStep > 0) {
+        state.currentMergeStep--;
+        renderStage1Tokenizer();
+        renderStage2Embedder();
+        renderStage3Comparison();
+      }
+    });
+
+    document.getElementById('bpe-step-fwd').addEventListener('click', () => {
+      const max = state.bpeSimulation ? state.bpeSimulation.steps.length - 1 : 32;
+      if (state.currentMergeStep < max) {
+        state.currentMergeStep++;
+        renderStage1Tokenizer();
+        renderStage2Embedder();
+        renderStage3Comparison();
+      }
+    });
+
+    document.getElementById('bpe-reset').addEventListener('click', () => {
+      state.currentMergeStep = 0;
+      renderStage1Tokenizer();
+      renderStage2Embedder();
+      renderStage3Comparison();
+    });
+
+    document.getElementById('bpe-play').addEventListener('click', () => {
+      const playBtn = document.getElementById('bpe-play');
+      if (state.bpePlayInterval) {
+        clearInterval(state.bpePlayInterval);
+        state.bpePlayInterval = null;
+        playBtn.textContent = '▶';
+      } else {
+        playBtn.textContent = '⏸';
+        state.bpePlayInterval = setInterval(() => {
+          const max = state.bpeSimulation ? state.bpeSimulation.steps.length - 1 : 32;
+          if (state.currentMergeStep >= max) {
+            state.currentMergeStep = 0;
+          } else {
+            state.currentMergeStep++;
+          }
+          renderStage1Tokenizer();
+          renderStage2Embedder();
+          renderStage3Comparison();
+        }, 500);
+      }
+    });
+
+    // Test input in tokenizer
+    document.getElementById('bpe-test-input').addEventListener('input', () => {
+      renderStage1Tokenizer();
+    });
+
+    // Custom Token Probe
+    document.getElementById('btn-probe-embed').addEventListener('click', () => {
+      const val = document.getElementById('embed-probe-input').value.trim();
+      if (val) {
+        state.probeToken = val;
+        renderStage2Embedder();
+      }
+    });
+
+    document.getElementById('embed-probe-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = document.getElementById('embed-probe-input').value.trim();
+        if (val) {
+          state.probeToken = val;
+          renderStage2Embedder();
+        }
+      }
+    });
+
+    // Quick Probe Pills
+    document.querySelectorAll('.btn-preset[data-probe]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const probe = btn.getAttribute('data-probe');
+        document.getElementById('embed-probe-input').value = probe;
+        state.probeToken = probe;
+        renderStage2Embedder();
+      });
+    });
+
+    // Sentences input live listeners
+    document.getElementById('sentence-a-input').addEventListener('input', () => {
+      runFullPipeline();
+    });
+    document.getElementById('sentence-b-input').addEventListener('input', () => {
+      runFullPipeline();
+    });
+
+    // Cohesion and Threshold sliders
+    document.getElementById('cohesion-slider').addEventListener('input', (e) => {
+      state.clusterCohesion = parseFloat(e.target.value);
+      document.getElementById('cohesion-val').textContent = `${state.clusterCohesion.toFixed(1)}×`;
+    });
+
+    document.getElementById('threshold-slider').addEventListener('input', (e) => {
+      state.linkThreshold = parseFloat(e.target.value);
+      document.getElementById('threshold-val').textContent = state.linkThreshold.toFixed(2);
+    });
+
+    // Auto-Orbit toggle
+    document.getElementById('btn-toggle-orbit').addEventListener('click', () => {
+      state.autoOrbit = !state.autoOrbit;
+      document.getElementById('orbit-indicator').style.background = state.autoOrbit ? '#22c55e' : '#64748b';
+    });
+
+    // Camera Presets
+    document.querySelectorAll('.btn-camera[data-cam]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-camera[data-cam]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.autoOrbit = false;
+        document.getElementById('orbit-indicator').style.background = '#64748b';
+
+        const mode = btn.getAttribute('data-cam');
+        if (mode === 'iso') {
+          state.camera.yaw = 0.8;
+          state.camera.pitch = 0.45;
+          state.camera.distance = 4.8;
+        } else if (mode === 'xy') {
+          state.camera.yaw = 0;
+          state.camera.pitch = 1.55; // looking straight down
+          state.camera.distance = 4.8;
+        } else if (mode === 'xz') {
+          state.camera.yaw = 0;
+          state.camera.pitch = 0; // looking straight front
+          state.camera.distance = 4.8;
+        } else if (mode === 'yz') {
+          state.camera.yaw = Math.PI / 2;
+          state.camera.pitch = 0; // looking from side
+          state.camera.distance = 4.8;
+        }
+      });
+    });
+
+    document.getElementById('btn-reset-cam').addEventListener('click', () => {
+      state.camera.yaw = 0.8;
+      state.camera.pitch = 0.45;
+      state.camera.distance = 4.8;
+      state.camera.panX = 0;
+      state.camera.panY = 0;
+    });
+
+    // Maximize 3D Toggle
+    document.getElementById('btn-maximize-3d').addEventListener('click', () => {
+      const card = document.getElementById('stage-3d-visualizer');
+      card.classList.toggle('maximized');
+      const isMax = card.classList.contains('maximized');
+      document.getElementById('maximize-btn-text').textContent = isMax ? 'Minimize 3D' : 'Maximize 3D';
+      setTimeout(resizeCanvas, 50);
+    });
+
+    // Presets handler
+    document.querySelectorAll('.btn-preset[data-preset]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-preset[data-preset]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const presetKey = btn.getAttribute('data-preset');
+        const p = PRESETS[presetKey];
+        if (p) {
+          document.getElementById('bpe-corpus-input').value = p.corpus;
+          document.getElementById('sentence-a-input').value = p.sentA;
+          document.getElementById('sentence-b-input').value = p.sentB;
+          document.getElementById('bpe-test-input').value = p.sentA;
+          document.getElementById('embed-probe-input').value = p.probe;
+          state.probeToken = p.probe;
+          runFullPipeline();
+        }
+      });
+    });
+
+    // Accordion Toggle Handlers
+    document.querySelectorAll('.stage-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const card = header.closest('.stage-card');
+        card.classList.toggle('collapsed');
+        const isCollapsed = card.classList.contains('collapsed');
+        header.setAttribute('aria-expanded', !isCollapsed);
+        if (card.id === 'stage-3d-visualizer' && !isCollapsed) {
+          setTimeout(resizeCanvas, 50);
+        }
+      });
+    });
+
+    // Toggle All Cards (Expand/Collapse All)
+    document.getElementById('btn-toggle-all-cards').addEventListener('click', () => {
+      const allCards = document.querySelectorAll('.stage-card');
+      const anyOpen = Array.from(allCards).some(c => !c.classList.contains('collapsed'));
+      allCards.forEach(c => {
+        if (anyOpen) {
+          c.classList.add('collapsed');
+        } else {
+          c.classList.remove('collapsed');
+        }
+      });
+      document.getElementById('btn-toggle-all-cards').textContent = anyOpen ? 'Expand All' : 'Collapse All';
+      setTimeout(resizeCanvas, 50);
+    });
+
+    // Stepper Rail Navigation Click
+    document.querySelectorAll('.step-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = pill.getAttribute('data-target');
+        const targetCard = document.getElementById(targetId);
+        if (targetCard) {
+          // Auto-expand card if collapsed
+          targetCard.classList.remove('collapsed');
+          targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (targetId === 'stage-3d-visualizer') {
+            setTimeout(resizeCanvas, 50);
+          }
+        }
+      });
+    });
+
+    // Scroll spy for stepper rail
+    window.addEventListener('scroll', () => {
+      const stages = ['stage-tokenizer', 'stage-embedder', 'stage-comparison', 'stage-3d-visualizer'];
+      const scrollPos = window.scrollY + 120;
+
+      for (let i = stages.length - 1; i >= 0; i--) {
+        const el = document.getElementById(stages[i]);
+        if (el && el.offsetTop <= scrollPos) {
+          document.querySelectorAll('.step-pill').forEach(pill => {
+            pill.classList.toggle('active', pill.getAttribute('data-target') === stages[i]);
+          });
+          break;
+        }
+      }
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+
+    /* ==========================================================================
+       8. INITIALIZATION
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      resizeCanvas();
+      runFullPipeline();
+      animate();
+    });
+  </script>
+</body>
+</html>

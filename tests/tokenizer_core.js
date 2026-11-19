@@ -182,6 +182,7 @@ function encodeBPE(text, vocabMap = {}, mergeRules = []) {
       resultTokens.push({
         token: tok,
         clean: clean || tok,
+        word: rawWord,
         id: id,
         isBase: tok.length === 1 && !tok.startsWith('▁'),
         hasPrefix: tok.startsWith('▁')

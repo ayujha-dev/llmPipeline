@@ -115,16 +115,16 @@ function computeComparison(textA, textB, bpeVocab = null, mergeRules = null) {
   if (bpeVocab && mergeRules && mergeRules.length > 0) {
     const encA = encodeBPE(textA, bpeVocab, mergeRules);
     const encB = encodeBPE(textB, bpeVocab, mergeRules);
-    rawA = encA.tokens.map(t => t.clean);
-    rawB = encB.tokens.map(t => t.clean);
+    rawA = encA.tokens;
+    rawB = encB.tokens;
   } else {
-    rawA = preTokenize(textA);
-    rawB = preTokenize(textB);
+    rawA = preTokenize(textA).map(t => ({ token: t, clean: t, word: t }));
+    rawB = preTokenize(textB).map(t => ({ token: t, clean: t, word: t }));
   }
 
   // Embed each token
-  const toksA = rawA.map((t, idx) => ({ ...embedToken(t), sentence: 'A', index: idx }));
-  const toksB = rawB.map((t, idx) => ({ ...embedToken(t), sentence: 'B', index: idx }));
+  const toksA = rawA.map((t, idx) => ({ ...embedToken(t.clean, t.word), sentence: 'A', index: idx }));
+  const toksB = rawB.map((t, idx) => ({ ...embedToken(t.clean, t.word), sentence: 'B', index: idx }));
 
   // Build pairwise similarity matrix
   const matrix = [];

@@ -405,12 +405,19 @@ function morphologicalEmbed(clean) {
   };
 }
 
-function embedToken(rawToken) {
+function embedToken(rawToken, contextWord = null) {
   const tokenStr = rawToken !== undefined && rawToken !== null ? String(rawToken) : '';
   const clean = sanitizeToken(tokenStr);
-  const isStopword = STOPWORDS.has(clean);
+  const cleanContext = sanitizeToken(contextWord);
 
-  const coords = morphologicalEmbed(clean);
+  let targetWord = clean;
+  // If token is a short subword fragment (<= 2 chars) and contextWord has substantial length, use context
+  if (clean.length <= 2 && cleanContext && cleanContext.length > 2 && !LEXICON[clean]) {
+    targetWord = cleanContext;
+  }
+
+  const isStopword = STOPWORDS.has(targetWord) || STOPWORDS.has(clean);
+  const coords = morphologicalEmbed(targetWord);
 
   // Stopwords have reduced magnitude
   const magnitudeMultiplier = isStopword ? 0.35 : 1.0;
@@ -424,6 +431,7 @@ function embedToken(rawToken) {
   return {
     token: tokenStr,
     clean: clean || tokenStr,
+    word: contextWord || tokenStr,
     x,
     y,
     z,
